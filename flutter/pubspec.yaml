@@ -35,7 +35,7 @@ dependencies:
   # Icons
   fluentui_system_icons: ^1.1.0
   # Terminal
-  xterm: ^3.4.0
+  xterm2: ^5.0.0
   # Pseudo-terminal for interactive programs (ConPTY on Windows)
   flutter_pty: ^0.4.2
   # Charts
