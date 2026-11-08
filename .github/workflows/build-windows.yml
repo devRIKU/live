@@ -30,7 +30,8 @@ jobs:
         run: |
           if (-not (Test-Path "windows\CMakeLists.txt")) {
             Write-Host "Scaffolding Windows runner..."
-            flutter create --platforms=windows .
+            flutter create --platforms=windows --project-name lively_openall .
+            git checkout lib/ pubspec.yaml
           }
 
       - name: Install Flutter Dependencies
@@ -43,7 +44,7 @@ jobs:
 
       - name: Build Windows Release
         working-directory: flutter
-        run: flutter build windows --release
+        run: flutter build windows --release --verbose
 
       - name: Package Release
         run: |
