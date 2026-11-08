@@ -31,7 +31,10 @@ jobs:
           if (-not (Test-Path "windows\CMakeLists.txt")) {
             Write-Host "Scaffolding Windows runner..."
             flutter create --platforms=windows --project-name lively_openall .
-            git checkout lib/ pubspec.yaml
+            git checkout lib/ pubspec.yaml test/
+            if (Test-Path "test\widget_test.dart") {
+              Remove-Item -Path "test\widget_test.dart" -Force -ErrorAction SilentlyContinue
+            }
           }
 
       - name: Install Flutter Dependencies
