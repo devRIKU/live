@@ -14,7 +14,6 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart' as f;
 import 'package:flutter/material.dart';
 import 'package:xterm/xterm.dart';
-import 'package:xterm/flutter.dart';
 
 import '../../core/services/adapters/code_agent.dart';
 import '../../core/theme/lively_tokens.dart';
@@ -48,7 +47,7 @@ class _TerminalDockState extends State<TerminalDock> {
   @override
   void initState() {
     super.initState();
-    _controller = TerminalController(terminal: _terminal);
+    _controller = TerminalController();
     _provider = getCodeAgentProvider();
     _dir = TextEditingController(text: widget.defaultWorkingDir);
 

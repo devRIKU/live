@@ -188,7 +188,7 @@ FitResult<T> fitMessagesToContext<T extends EstimatableMessage>(
   return FitResult(
     messages: kept,
     dropped: dropped,
-    tokens: total.clamp(0, 1 << 40),
+    tokens: total.clamp(0, 1 << 40).toInt(),
     overLimit: total > usable,
   );
 }

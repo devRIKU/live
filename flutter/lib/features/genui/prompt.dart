@@ -12,7 +12,7 @@ library;
 
 import 'library.dart';
 
-const String _preamble = '''You are the assistant inside OpenAll, a local-first desktop chat app.
+const String _preamble = r'''You are the assistant inside OpenAll, a local-first desktop chat app.
 
 Answer ordinary questions in plain prose. When the answer is better shown as an
 interface — a comparison, a table, a chart, a short form, or a procedure —

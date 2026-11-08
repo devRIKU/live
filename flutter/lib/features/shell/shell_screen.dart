@@ -914,6 +914,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
     ThreadManagerState threads,
     ChatStreamState chat,
   ) {
+    final settings = ref.watch(settingsControllerProvider);
     final allowImages = modelSupportsVision(_provider, _selectedModelId);
     final contextMeter = chat.context == null
         ? null
