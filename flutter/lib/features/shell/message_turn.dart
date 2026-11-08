@@ -370,7 +370,6 @@ class _ErrorNoticeCard extends StatelessWidget {
                 onPressed: () => onAction?.call(
                   const OpenUIActionEvent(
                     type: 'open_settings',
-                    componentId: 'error_card',
                     params: {},
                   ),
                 ),
@@ -387,7 +386,6 @@ class _ErrorNoticeCard extends StatelessWidget {
                 onPressed: () => onAction?.call(
                   const OpenUIActionEvent(
                     type: 'switch_to_demo',
-                    componentId: 'error_card',
                     params: {},
                   ),
                 ),
