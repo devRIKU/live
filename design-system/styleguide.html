@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lively Design System — Styleguide</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* ── Page chrome (styleguide only — product uses the same tokens) ── */
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+    font-size: var(--t-body);
+    line-height: 1.375;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: light dark;
+  }
+  .layout { display: flex; align-items: flex-start; }
+
+  /* ── Index nav ── */
+  .index {
+    width: 236px; flex-shrink: 0;
+    position: sticky; top: 0; height: 100vh;
+    padding: 28px 20px;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-right: 1px solid var(--separator);
+    overflow-y: auto;
+  }
+  .index-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .index-title { font-size: var(--t-headline); font-weight: var(--w-semibold); letter-spacing: var(--t-headline-tracking); }
+  .index-ver { font-size: var(--t-micro); color: var(--text-tertiary); font-family: ui-monospace, Menlo, monospace; }
+  .index nav { margin-top: 22px; display: flex; flex-direction: column; gap: 1px; }
+  .index nav a {
+    display: flex; align-items: center; gap: 9px;
+    padding: 6px 9px; border-radius: var(--r-fixed-sm);
+    font-size: var(--t-subhead); color: var(--text-secondary);
+    text-decoration: none;
+    transition: background var(--d-fast) var(--ease-out), color var(--d-fast) var(--ease-out);
+  }
+  .index nav a:hover { background: var(--fill-1); color: var(--text-primary); }
+  .index nav a b { font-weight: var(--w-medium); font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--text-tertiary); width: 18px; }
+
+  /* ── Main ── */
+  .main { flex: 1; min-width: 0; padding: 48px 56px 120px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  header.hero { padding-bottom: 40px; border-bottom: 1px solid var(--separator); margin-bottom: 44px; }
+  .eyebrow {
+    font-size: var(--t-micro); font-weight: var(--w-medium); color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: .09em; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h1 { font-size: 40px; line-height: 46px; letter-spacing: -.026em; font-weight: var(--w-semibold); margin: 0 0 14px; }
+  .lede { font-size: var(--t-title); line-height: 1.4; color: var(--text-secondary); max-width: 62ch; font-weight: var(--w-regular); }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .meta-chip {
+    font-family: ui-monospace, Menlo, monospace; font-size: 11.5px;
+    padding: 4px 9px; border-radius: var(--r-fixed-xs);
+    background: var(--fill-1); color: var(--text-secondary);
+    border: 1px solid var(--separator);
+  }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .sec-num { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--text-tertiary); }
+  h2 { font-size: var(--t-title); letter-spacing: var(--t-title-tracking); font-weight: var(--w-semibold); margin: 0; }
+  .sec-note { color: var(--text-secondary); font-size: var(--t-callout); max-width: 72ch; margin: 0 0 24px; }
+  h3 { font-size: var(--t-footnote); font-weight: var(--w-semibold); text-transform: uppercase; letter-spacing: .07em; color: var(--text-tertiary); margin: 30px 0 12px; }
+
+  .panel {
+    border: 1px solid var(--separator);
+    border-radius: var(--r-fixed-lg);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .panel-pad { padding: 22px; }
+  .demo {
+    padding: 34px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface-sunken);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Swatches ── */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .swatch {
+    border: 1px solid var(--separator);
+    border-radius: var(--r-fixed-md);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .swatch-chip { height: 56px; }
+  .swatch-body { padding: 8px 10px; }
+  .swatch-name { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: var(--text-primary); }
+  .swatch-val { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
+
+  .ramp { display: flex; border-radius: var(--r-fixed-md); overflow: hidden; border: 1px solid var(--separator); }
+  .ramp-step { flex: 1; height: 56px; position: relative; }
+  .ramp-step span {
+    position: absolute; inset: auto 0 6px; text-align: center;
+    font-family: ui-monospace, Menlo, monospace; font-size: 9.5px; opacity: .72;
+  }
+
+  /* ── Type specimen ── */
+  .type-row { display: grid; grid-template-columns: 132px 1fr; gap: 20px; align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--separator); }
+  .type-meta { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: var(--text-tertiary); line-height: 1.5; }
+
+  /* ── Shape demo ── */
+  .shapes { display: flex; flex-wrap: wrap; gap: 26px; align-items: flex-end; }
+  .shape-item { text-align: center; }
+  .shape-box { width: 76px; height: 76px; background: var(--fill-2); border: 1px solid var(--separator); margin-bottom: 9px; }
+  .shape-cap { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: var(--text-tertiary); line-height: 1.5; }
+
+  /* ── Concentric diagram ── */
+  .conc { display: flex; align-items: center; gap: 34px; flex-wrap: wrap; }
+  .conc-diagram { position: relative; width: 260px; height: 132px; }
+  .conc-parent {
+    position: absolute; inset: 0;
+    border-radius: var(--composer-radius);
+    background: var(--fill-1);
+    border: 1px solid var(--separator);
+    display: flex; align-items: center; gap: 9px; padding: 0 13px;
+  }
+  .conc-child {
+    width: 44px; height: 44px; border-radius: 18px;
+    background: var(--accent); color: #fff;
+    display: grid; place-items: center; font-size: 12px; font-weight: 600;
+  }
+  .conc-annot { font-size: var(--t-footnote); color: var(--text-secondary); max-width: 34ch; }
+  .conc-annot b { color: var(--text-primary); font-family: ui-monospace, Menlo, monospace; font-weight: 600; }
+
+  /* ── Effects ── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .compare-cell { border: 1px solid var(--separator); border-radius: var(--r-fixed-md); overflow: hidden; }
+  .compare-cap {
+    padding: 7px 11px; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px;
+    color: var(--text-tertiary); border-bottom: 1px solid var(--separator); background: var(--surface);
+  }
+  .compare-body { padding: 26px; display: grid; place-items: center; background: var(--surface-sunken); }
+
+  .glass-demo {
+    width: 220px; height: 104px; border-radius: var(--r-fixed-lg);
+    display: grid; place-items: center;
+    font-size: var(--t-footnote); color: var(--text-secondary);
+    position: relative; overflow: hidden;
+  }
+  .glass-plain { background: var(--surface-raised); border: 1px solid var(--separator); }
+  .glass-spec {
+    position: relative;
+    background: var(--surface-raised);
+    box-shadow: var(--e-2), inset 0 1px 0 0 var(--spec-inner);
+  }
+  .glass-under {
+    position: absolute; inset: 0;
+    background: var(--flow-spectrum);
+    opacity: .5;
+    filter: blur(9px);
+  }
+  .glass-under-wrap { position: relative; width: 220px; height: 104px; border-radius: var(--r-fixed-lg); overflow: hidden; }
+  .glass-under-wrap > .glass-demo { position: absolute; inset: 0; }
+  /* A true gradient border on a translucent face: the border-box gradient has
+     nothing opaque to mask it, so it bleeds across the whole interior. */
+  .glass-bleed {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(transparent, transparent) padding-box,
+      linear-gradient(140deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.30) 15%, transparent 38%, transparent 62%, rgba(0,0,0,.12) 82%, rgba(255,255,255,.26) 100%) border-box;
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  .translucent {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+
+  /* ── Spectrum ── */
+  .spectrum-bar { height: 92px; border-radius: var(--r-fixed-lg); background: var(--flow-spectrum); }
+  .spectrum-v {
+    height: 92px; border-radius: var(--r-fixed-lg); background: var(--flow-spectrum-vertical);
+    width: 190px;
+  }
+  .spectrum-stops { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .stop { display: flex; align-items: center; gap: 8px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--text-secondary); }
+  .stop i { width: 16px; height: 16px; border-radius: 4px; display: block; }
+
+  /* ── Pixel motif ── */
+  .pixel-stage { position: relative; padding: 30px; display: grid; place-items: center; overflow: hidden; }
+  .pixel-stage::before { content: ''; position: absolute; inset: 0; background: var(--pixel-grid); opacity: .8; }
+  .pixel-stage::after { content: ''; position: absolute; inset: 0; background: var(--arch-grid); }
+  .monogram { position: relative; z-index: 2; }
+  .monogram rect { fill: var(--text-primary); }
+  .monogram rect.acc { fill: var(--flow-orange); }
+
+  /* ── Component demos ── */
+  .comp-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+
+  .d-composer {
+    width: 100%; max-width: 620px;
+    display: flex; align-items: flex-end; gap: 4px;
+    padding: var(--composer-pad);
+    min-height: var(--composer-min-height);
+    border-radius: var(--composer-radius);
+    background: var(--composer-bg);
+    box-shadow: var(--composer-shadow-1), var(--composer-shadow-2), inset 0 1px 0 0 var(--spec-inner);
+    transition: background var(--d-base) var(--ease-out), box-shadow var(--d-base) var(--ease-out);
+  }
+  .d-composer:focus-within {
+    background: var(--composer-bg-focus);
+    box-shadow: var(--composer-shadow-1), var(--composer-shadow-2), inset 0 1px 0 0 var(--spec-inner),
+                0 0 0 4px color-mix(in srgb, var(--accent) 11%, transparent);
+  }
+  .d-composer:focus-within::after { background: var(--spec-ring-focus); }
+  .d-composer textarea {
+    flex: 1; border: none; outline: none; resize: none; background: none;
+    font: inherit; font-size: var(--t-body); color: var(--text-primary);
+    padding: 9px 8px; height: 40px;
+  }
+  .d-composer textarea::placeholder { color: var(--text-tertiary); }
+  .d-right { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-shrink: 0; }
+  .d-btn {
+    width: var(--btn-height); height: var(--btn-height); border-radius: 50%;
+    display: grid; place-items: center; color: var(--text-secondary); flex-shrink: 0;
+    margin-bottom: 4px;
+    transition: background var(--d-fast) var(--ease-out), transform var(--d-fast) var(--ease-out);
+  }
+  .d-btn:hover { background: var(--fill-2); }
+  .d-btn:active { transform: scale(.92); }
+  .d-chip {
+    display: flex; align-items: center; gap: 5px;
+    height: var(--btn-height); padding: 0 10px;
+    border-radius: var(--composer-chip-radius); font-size: var(--t-footnote);
+    font-weight: var(--w-medium); color: var(--text-secondary); flex-shrink: 0;
+  }
+  .d-chip:hover { background: var(--fill-2); color: var(--text-primary); }
+  .d-send {
+    width: var(--send-size); height: var(--send-size);
+    background: var(--send-bg-off); color: var(--text-tertiary);
+  }
+  .d-send.ready { background: var(--send-bg); color: #fff; }
+  .d-send.ready .glyph { transform: scale(1); }
+  .d-send .glyph { position: relative; width: 18px; height: 18px; transform: scale(.86);
+                   transition: transform var(--d-slow) var(--ease-spring); }
+  .d-send .glyph svg { position: absolute; inset: 0; }
+
+  .d-bubble {
+    max-width: 70%; padding: 10px 15px; border-radius: var(--bubble-radius);
+    background: var(--fill-1); font-size: var(--t-body);
+  }
+  .d-bubble.plain { background: none; padding: 0; border-radius: 0; }
+
+  .d-popover {
+    width: 250px; padding: 8px;
+    background: var(--popover-bg);
+    border: var(--popover-border);
+    border-radius: var(--popover-radius);
+    box-shadow: var(--popover-shadow), inset 0 1px 0 0 var(--spec-inner);
+  }
+  .d-pop-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--r-fixed-md); font-size: var(--t-subhead); }
+  .d-pop-item:hover { background: var(--fill-1); }
+
+  .d-slider { position: relative; height: 30px; margin: 10px 12px; display: flex; align-items: center; }
+  .d-track { position: absolute; left: 0; right: 0; height: 8px; border-radius: 999px; background: var(--fill-2); }
+  .d-fill { position: absolute; left: 0; height: 8px; width: 50%; border-radius: 999px; background: var(--accent); }
+  .d-knob {
+    position: absolute; left: 50%; width: 26px; height: 26px; border-radius: 50%;
+    background: #fff; transform: translateX(-50%);
+    box-shadow: 0 1px 3px rgba(0,0,0,.24), 0 0 0 .5px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.9);
+  }
+
+  .d-row {
+    display: flex; align-items: center; gap: 9px; padding: 7px 9px;
+    border-radius: var(--r-fixed-sm); font-size: var(--t-subhead);
+  }
+  .d-row.active { background: var(--fill-1); }
+  .d-row:hover { background: var(--fill-1); }
+
+  /* ── Rules ── */
+  .rule {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 13px 0; border-bottom: 1px solid var(--separator);
+    font-size: var(--t-callout); line-height: 1.5;
+  }
+  .rule:last-child { border-bottom: none; }
+  .rule-k {
+    font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; flex-shrink: 0;
+    padding: 2px 7px; border-radius: 999px; margin-top: 1px;
+    background: var(--accent-muted); color: var(--accent-text);
+  }
+  .rule-k.no { background: rgba(255,59,48,.14); color: #d70015; }
+  @media (prefers-color-scheme: dark) { .rule-k.no { color: #ff6961; } }
+
+  code { font-family: ui-monospace, Menlo, monospace; font-size: .92em; background: var(--fill-1); padding: 1px 5px; border-radius: 4px; }
+  .mono { font-family: ui.monospace, Menlo, monospace; }
+  .muted { color: var(--text-secondary); }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+
+  @media (max-width: 900px) {
+    .index { display: none; }
+    .main { padding: 32px 22px 90px; }
+    .compare { grid-template-columns: 1fr; }
+    .type-row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ══ INDEX ══ -->
+  <aside class="index">
+    <div class="index-brand">
+      <svg class="monogram" width="26" height="23" viewBox="0 0 24 21" aria-label="Lively">
+        <rect x="0" y="0" width="3" height="3"/><rect x="0" y="3" width="3" height="3"/>
+        <rect x="0" y="6" width="3" height="3"/><rect x="0" y="9" width="3" height="3"/>
+        <rect x="0" y="12" width="3" height="3"/><rect x="0" y="15" width="3" height="3"/>
+        <rect x="0" y="18" width="3" height="3"/><rect x="3" y="18" width="3" height="3"/>
+        <rect class="acc" x="6" y="18" width="3" height="3"/>
+        <rect x="12" y="0" width="3" height="3"/><rect x="15" y="0" width="3" height="3"/>
+        <rect x="18" y="0" width="3" height="3"/><rect x="12" y="3" width="3" height="3"/>
+        <rect x="12" y="6" width="3" height="3"/><rect x="15" y="6" width="3" height="3"/>
+        <rect x="12" y="9" width="3" height="3"/><rect x="12" y="12" width="3" height="3"/>
+      </svg>
+      <span class="index-title">Lively</span>
+    </div>
+    <div class="index-ver">design system · v1.0.0</div>
+    <nav>
+      <a href="#overview"><b>00</b>Overview</a>
+      <a href="#colour"><b>01</b>Colour</a>
+      <a href="#spectrum"><b>02</b>Flow spectrum</a>
+      <a href="#shape"><b>03</b>Shape</a>
+      <a href="#type"><b>04</b>Typography</a>
+      <a href="#space"><b>05</b>Space &amp; elevation</a>
+      <a href="#motion"><b>06</b>Motion</a>
+      <a href="#specular"><b>07</b>Specular rim</a>
+      <a href="#pixel"><b>08</b>Pixel motif</a>
+      <a href="#components"><b>09</b>Components</a>
+      <a href="#rules"><b>10</b>Rules</a>
+    </nav>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main">
+  <div class="wrap">
+
+    <header class="hero">
+      <div class="eyebrow">Design system</div>
+      <h1>Lively</h1>
+      <p class="lede">A token system for an assistant chat interface. Structural layer from the Apple Human Interface Guidelines; three effects borrowed from brands that actually solved this problem — Sarvam's flow spectrum and Mistral's pixel construction.</p>
+      <div class="meta-row">
+        <span class="meta-chip">version 1.0.0</span>
+        <span class="meta-chip">updated 2026-10-21</span>
+        <span class="meta-chip">3 token layers</span>
+        <span class="meta-chip">2 themes</span>
+        <span class="meta-chip">tokens.css</span>
+      </div>
+    </header>
+
+    <!-- ══ OVERVIEW ══ -->
+    <section id="overview">
+      <div class="sec-head"><span class="sec-num">00</span><h2>Architecture</h2></div>
+      <p class="sec-note">Three layers, one direction of dependency. Component CSS may only reference semantic and component tokens — a primitive name appearing in a component stylesheet is a bug.</p>
+      <div class="grid2">
+        <div class="panel panel-pad">
+          <div class="mono" style="font-size:12px;line-height:2">
+            <div><b style="color:var(--text-primary)">1 · PRIMITIVE</b></div>
+            <div class="muted">--p-neutral-900 · --s-4 · --r-fixed-lg</div>
+            <div class="muted">--t-body · --e-3 · --d-slow</div>
+            <div class="muted" style="margin-top:14px;font-size:11px">raw values, no meaning</div>
+          </div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="mono" style="font-size:12px;line-height:2">
+            <div><b style="color:var(--text-primary)">2 · SEMANTIC</b></div>
+            <div class="muted">--text-primary · --fill-2 · --separator</div>
+            <div class="muted">--accent · --spec-hi · --flow-spectrum</div>
+            <div class="muted" style="margin-top:14px;font-size:11px">role names, theme-aware</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-pad" style="margin-top:14px">
+        <div class="mono" style="font-size:12px;line-height:2">
+          <div><b style="color:var(--text-primary)">3 · COMPONENT</b></div>
+          <div class="muted">--composer-radius · --composer-chip-radius · --popover-shadow · --send-size</div>
+          <div class="muted" style="margin-top:14px;font-size:11px">bindings for one part of the interface</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ COLOUR ══ -->
+    <section id="colour">
+      <div class="sec-head"><span class="sec-num">01</span><h2>Colour</h2></div>
+      <p class="sec-note">Semantic roles, never raw values at the call site. Light and dark are the same token names with different values — no component branches on theme.</p>
+
+      <h3>Semantic roles</h3>
+      <div class="swatches" id="semanticSwatches"></div>
+
+      <h3>Primitives · indigo</h3>
+      <div class="ramp" id="rampIndigo"></div>
+
+      <h3>Primitives · orange &amp; gold</h3>
+      <div class="ramp" id="rampWarm"></div>
+
+      <h3>Primitives · neutral</h3>
+      <div class="ramp" id="rampNeutral"></div>
+    </section>
+
+    <!-- ══ SPECTRUM ══ -->
+    <section id="spectrum">
+      <div class="sec-head"><span class="sec-num">02</span><h2>Flow spectrum</h2></div>
+      <p class="sec-note">Sarvam's continuous blue-to-orange transition. Extracted from their published <code>--gradient-*</code> tokens, not recalled.</p>
+
+      <div class="panel">
+        <div class="demo" style="flex-direction:column;gap:22px">
+          <div class="spectrum-bar"></div>
+          <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <div class="spectrum-v"></div>
+            <div class="spectrum-stops" style="flex-direction:column;gap:9px;margin:0">
+              <span class="stop"><i style="background:#393cc1"></i> #393cc1 · brand blue</span>
+              <span class="stop"><i style="background:#6a88e2"></i> #6a88e2 · indigo-500</span>
+              <span class="stop"><i style="background:#bed2ff"></i> #bed2ff · periwinkle</span>
+              <span class="stop"><i style="background:#eaaf1c"></i> #eaaf1c · gold</span>
+              <span class="stop"><i style="background:#d5650f"></i> #d5650f · brand orange</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rule" style="margin-top:18px;border-top:1px solid var(--separator)">
+        <span class="rule-k no">reserved</span>
+        <span><b>The spectrum appears only in a flow state</b> — generating, streaming, syncing. It is never a surface fill, never a card background, never decoration. If the spectrum is on screen, something is moving. If nothing is moving, the spectrum must not be on screen. <code>.u-flow-text</code> · <code>.u-flow-bar</code></span>
+      </div>
+    </section>
+
+    <!-- ══ SHAPE ══ -->
+    <section id="shape">
+      <div class="sec-head"><span class="sec-num">03</span><h2>Shape</h2></div>
+      <p class="sec-note">Three types from the iOS 26 HIG taxonomy. Nothing else is allowed.</p>
+      <div class="panel">
+        <div class="demo">
+          <div class="shapes">
+            <div class="shape-item">
+              <div class="shape-box" style="border-radius:var(--r-fixed-md)"></div>
+              <div class="shape-cap">fixed<br>8px</div>
+            </div>
+            <div class="shape-item">
+              <div class="shape-box" style="border-radius:var(--r-fixed-2xl)"></div>
+              <div class="shape-cap">fixed<br>20px</div>
+            </div>
+            <div class="shape-item">
+              <div class="shape-box" style="border-radius:var(--r-capsule)"></div>
+              <div class="shape-cap">capsule<br>half height</div>
+            </div>
+            <div class="shape-item">
+              <div class="shape-box" style="border-radius:50%"></div>
+              <div class="shape-cap">capsule<br>circle</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Concentricity</h3>
+      <div class="panel">
+        <div class="demo">
+          <div class="conc">
+            <div class="conc-diagram">
+              <div class="conc-parent">
+                <div class="conc-child">36</div>
+                <div class="conc-child" style="background:var(--fill-2);color:var(--text-secondary)">18</div>
+              </div>
+            </div>
+            <p class="conc-annot">The composer is a <b>26px</b> capsule. A control sitting on its inner edge needs <b>26 − 8 = 18px</b> so the two curves share a centre and read as one shape instead of a button glued onto a pill.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ TYPE ══ -->
+    <section id="type">
+      <div class="sec-head"><span class="sec-num">04</span><h2>Typography</h2></div>
+      <p class="sec-note">System font per HIG — San Francisco on Apple platforms. Roles carry size, weight and tracking together.</p>
+      <div class="panel"><div class="panel-pad" id="typeSpec"></div></div>
+    </section>
+
+    <!-- ══ SPACE ══ -->
+    <section id="space">
+      <div class="sec-head"><span class="sec-num">05</span><h2>Space &amp; elevation</h2></div>
+      <p class="sec-note">4px base unit. Elevation is subtle and never carries meaning on its own.</p>
+      <h3>Spacing</h3>
+      <div class="panel"><div class="panel-pad" id="spaceSpec"></div></div>
+      <h3>Elevation</h3>
+      <div class="swatches" id="elevSpec"></div>
+    </section>
+
+    <!-- ══ MOTION ══ -->
+    <section id="motion">
+      <div class="sec-head"><span class="sec-num">06</span><h2>Motion</h2></div>
+      <p class="sec-note">Entrance uses ease-out. Movement on screen uses ease-in-out. Never <code>ease-in</code> on a UI element — it delays the first movement, which is the exact moment the user is watching.</p>
+      <div class="panel"><div class="panel-pad" id="motionSpec"></div></div>
+    </section>
+
+    <!-- ══ SPECULAR ══ -->
+    <section id="specular">
+      <div class="sec-head"><span class="sec-num">07</span><h2>Specular rim</h2></div>
+      <p class="sec-note">A fake lighter border that reads as light catching the edge of glass. It is a <b>true 1px gradient ring</b> — light source at the top-left, falloff through edge-on, refraction into shadow at the bottom-right, then a bounce of light off the far corner.</p>
+
+      <div class="compare" style="grid-template-columns:repeat(3,1fr)">
+        <div class="compare-cell">
+          <div class="compare-cap">no rim</div>
+          <div class="compare-body"><div class="glass-demo glass-plain">flat</div></div>
+        </div>
+        <div class="compare-cell">
+          <div class="compare-cap">.u-specular — rest</div>
+          <div class="compare-body"><div class="glass-demo glass-spec u-specular">lit edge</div></div>
+        </div>
+        <div class="compare-cell">
+          <div class="compare-cap">.u-specular — focus</div>
+          <div class="compare-body">
+            <div class="glass-demo glass-spec u-specular" data-focused="true">re-lit</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Why it is a mask, not a border</h3>
+      <p class="sec-note" style="margin-top:14px">A gradient border can be built with <code>background-clip</code> — face on <code>padding-box</code>, edge on <code>border-box</code>. But that needs an <b>opaque</b> face to mask the edge layer. Every glass surface here uses <code>backdrop-filter</code>, so the edge bleeds through the interior. A mask punches the content box out instead, so the ring is only ever the ring.</p>
+
+      <div class="compare">
+        <div class="compare-cell">
+          <div class="compare-cap">gradient border over glass — bleeds</div>
+          <div class="compare-body">
+            <div class="glass-under-wrap">
+              <div class="glass-under"></div>
+              <div class="glass-demo glass-bleed">blurred edge</div>
+            </div>
+          </div>
+        </div>
+        <div class="compare-cell">
+          <div class="compare-cap">masked ring over glass — clean</div>
+          <div class="compare-body">
+            <div class="glass-under-wrap">
+              <div class="glass-under"></div>
+              <div class="glass-demo translucent u-specular">clean edge</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rule" style="margin-top:18px;border-top:1px solid var(--separator)">
+        <span class="rule-k">utility</span>
+        <span><code>.u-specular</code> paints the ring. <code>data-focused="true"</code> swaps it for <code>--spec-ring-focus</code>, so focus <b>re-lights the rim</b> instead of drawing a halo around the control. <code>--spec-ring-on-accent</code> is the variant for saturated fills, where the rim reads as a lit sphere.</span>
+      </div>
+    </section>
+
+    <!-- ══ PIXEL ══ -->
+    <section id="pixel">
+      <div class="sec-head"><span class="sec-num">08</span><h2>Pixel motif</h2></div>
+      <p class="sec-note">Mistral's emblem is a chunky pixel sprite in monochrome with exactly one accent pixel. The LF monogram uses the same construction — a pixel-matrix <code>LF</code> in ink with a single pixel in the brand orange.</p>
+      <div class="panel">
+        <div class="demo pixel-stage">
+          <svg class="monogram" width="120" height="105" viewBox="0 0 24 21" aria-label="Lively monogram">
+            <rect x="0" y="0" width="3" height="3"/><rect x="0" y="3" width="3" height="3"/>
+            <rect x="0" y="6" width="3" height="3"/><rect x="0" y="9" width="3" height="3"/>
+            <rect x="0" y="12" width="3" height="3"/><rect x="0" y="15" width="3" height="3"/>
+            <rect x="0" y="18" width="3" height="3"/><rect x="3" y="18" width="3" height="3"/>
+            <rect class="acc" x="6" y="18" width="3" height="3"/>
+            <rect x="12" y="0" width="3" height="3"/><rect x="15" y="0" width="3" height="3"/>
+            <rect x="18" y="0" width="3" height="3"/><rect x="12" y="3" width="3" height="3"/>
+            <rect x="12" y="6" width="3" height="3"/><rect x="15" y="6" width="3" height="3"/>
+            <rect x="12" y="9" width="3" height="3"/><rect x="12" y="12" width="3" height="3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="rule" style="margin-top:18px;border-top:1px solid var(--separator)">
+        <span class="rule-k no">one pixel</span>
+        <span>Exactly <b>one</b> accent pixel per emblem. Ambient grid texture stays at or below <b>0.06</b> opacity — a pixel grid at full strength is a texture; at 0.05 it is a material.</span>
+      </div>
+    </section>
+
+    <!-- ══ COMPONENTS ══ -->
+    <section id="components">
+      <div class="sec-head"><span class="sec-num">09</span><h2>Components</h2></div>
+      <p class="sec-note">The contract each component owes the rest of the system.</p>
+
+      <h3>Composer</h3>
+      <p class="sec-note" style="margin-top:14px">One control at the left, the field in the middle, every secondary control grouped at the right with the primary action outermost. The rim re-lights on focus instead of drawing a halo.</p>
+      <div class="panel"><div class="demo">
+        <div class="d-composer u-specular">
+          <button class="d-btn" aria-label="Add tools">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <textarea id="demo-composer-input" placeholder="Ask anything"></textarea>
+          <div class="d-right">
+            <button class="d-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M13.2 2.5 5.6 13.2H11l-1 8.3 8-10.7h-5.4Z"/></svg>
+              Medium
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9.5 6 6 6-6"/></svg>
+            </button>
+            <button class="d-btn" aria-label="Dictate">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.8" width="6" height="10.6" rx="3"/><path d="M5.4 11.2a6.6 6.6 0 0 0 13.2 0"/><path d="M12 17.8v3.4"/></svg>
+            </button>
+            <button class="d-send ready u-specular" aria-label="Send">
+              <span class="glyph">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.5V4.8"/><path d="m5.6 11.2 6.4-6.4 6.4 6.4"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div></div>
+
+      <h3>Send states</h3>
+      <div class="panel"><div class="demo" style="gap:22px">
+        <div style="text-align:center">
+          <div class="d-send u-specular" style="margin:0 auto"><span class="glyph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.5V4.8"/><path d="m5.6 11.2 6.4-6.4 6.4 6.4"/></svg></span></div>
+          <div class="mono muted" style="font-size:10.5px;margin-top:8px">muted</div>
+        </div>
+        <div style="text-align:center">
+          <div class="d-send ready u-specular" style="margin:0 auto"><span class="glyph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.5V4.8"/><path d="m5.6 11.2 6.4-6.4 6.4 6.4"/></svg></span></div>
+          <div class="mono muted" style="font-size:10.5px;margin-top:8px">ready — wakes</div>
+        </div>
+        <div style="text-align:center">
+          <div class="d-send u-specular" style="margin:0 auto;background:var(--accent);color:#fff"><span class="glyph" style="transform:scale(1)"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="3.4"/></svg></span></div>
+          <div class="mono muted" style="font-size:10.5px;margin-top:8px">stop</div>
+        </div>
+      </div></div>
+
+      <h3>Popover</h3>
+      <div class="panel"><div class="demo">
+        <div class="d-popover">
+          <div class="d-pop-item">Create an image</div>
+          <div class="d-pop-item">Write or edit</div>
+          <div class="d-pop-item">Search the web</div>
+        </div>
+      </div></div>
+
+      <h3>Slider</h3>
+      <div class="panel"><div class="demo" style="flex-direction:column;gap:10px">
+        <div style="width:250px">
+          <div class="d-slider">
+            <span class="d-track"></span><span class="d-fill"></span><span class="d-knob"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:2px 14px 0;font-size:var(--t-micro);color:var(--text-tertiary)">
+            <span>Low</span><span>Medium</span><span>High</span>
+          </div>
+        </div>
+      </div></div>
+
+      <h3>Message hierarchy</h3>
+      <div class="panel"><div class="demo" style="flex-direction:column;align-items:stretch;gap:18px;max-width:640px;margin:0 auto">
+        <div style="display:flex;justify-content:flex-end"><div class="d-bubble">How should I structure the release note?</div></div>
+        <div class="d-bubble plain">Start with the smallest surface that proves the idea, then widen once you can feel the interaction work.</div>
+      </div></div>
+    </section>
+
+    <!-- ══ RULES ══ -->
+    <section id="rules">
+      <div class="sec-head"><span class="sec-num">10</span><h2>Rules</h2></div>
+      <p class="sec-note">The checks that keep the system from eroding.</p>
+      <div class="panel panel-pad">
+        <div class="rule"><span class="rule-k">token</span><span>Semantic names only in component CSS. A primitive name in a component stylesheet is a bug.</span></div>
+        <div class="rule"><span class="rule-k">token</span><span>No colour invented at the call site. If a role is missing, add it to <code>tokens.css</code> first.</span></div>
+        <div class="rule"><span class="rule-k no">reserved</span><span>The flow spectrum appears only in a flow state. It is a signal, never a surface.</span></div>
+        <div class="rule"><span class="rule-k no">one pixel</span><span>At most one accent pixel per pixel emblem.</span></div>
+        <div class="rule"><span class="rule-k">texture</span><span>Ambient texture — pixel grid, aurora, arch grid — stays at or below 0.06 opacity when it is decoration.</span></div>
+        <div class="rule"><span class="rule-k">shape</span><span>Radii come from fixed, capsule or concentric only. Never an arbitrary value.</span></div>
+        <div class="rule"><span class="rule-k">motion</span><span>Only <code>transform</code> and <code>opacity</code> animate. UI animation stays under 300ms.</span></div>
+        <div class="rule"><span class="rule-k">motion</span><span>Under <code>prefers-reduced-motion</code>, remove movement but keep comprehension — the streaming caret stays visible and solid.</span></div>
+        <div class="rule"><span class="rule-k">theme</span><span>Light and dark are the same tokens with different values. No component branches on theme.</span></div>
+        <div class="rule"><span class="rule-k">a11y</span><span><code>Escape</code> closes popovers, sliders are arrow-key operable, focus is always visible, touch targets at least 44×44.</span></div>
+      </div>
+    </section>
+
+  </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Build the semantic swatch grid from live tokens ── */
+  const SEMANTIC = [
+    ['--canvas', 'canvas'],
+    ['--surface', 'surface'],
+    ['--surface-raised', 'surface-raised'],
+    ['--surface-sunken', 'surface-sunken'],
+    ['--text-primary', 'text-primary'],
+    ['--text-secondary', 'text-secondary'],
+    ['--text-tertiary', 'text-tertiary'],
+    ['--separator', 'separator'],
+    ['--fill-1', 'fill-1'],
+    ['--fill-2', 'fill-2'],
+    ['--accent', 'accent'],
+    ['--flow-orange', 'flow-orange'],
+    ['--flow-indigo', 'flow-indigo'],
+    ['--spec-hi', 'spec-hi'],
+    ['--spec-lo', 'spec-lo'],
+    ['--spec-bounce', 'spec-bounce'],
+    ['--grid-line', 'grid-line']
+  ];
+  const root = getComputedStyle(document.documentElement);
+  const semEl = document.getElementById('semanticSwatches');
+  SEMANTIC.forEach(([name, label]) => {
+    const val = root.getPropertyValue(name).trim();
+    const cell = document.createElement('div');
+    cell.className = 'swatch';
+    cell.innerHTML =
+      '<div class="swatch-chip" style="background:' + val + '"></div>' +
+      '<div class="swatch-body"><div class="swatch-name">' + name + '</div>' +
+      '<div class="swatch-val">' + (label === name ? '' : label + ' · ') + val + '</div></div>';
+    semEl.appendChild(cell);
+  });
+
+  /* ── Ramps ── */
+  function ramp(el, steps) {
+    steps.forEach(([label, color]) => {
+      const s = document.createElement('div');
+      s.className = 'ramp-step';
+      s.style.background = color;
+      s.innerHTML = '<span style="color:' + (label === '0' || label === '25' || label === '50' ? '#171614' : '#fff') + '">' + label + '</span>';
+      el.appendChild(s);
+    });
+  }
+  ramp(document.getElementById('rampIndigo'), [
+    ['300', '#a8b3f2'], ['400', '#8189e6'], ['500', '#6a88e2'], ['600', '#556adc'],
+    ['700', '#4250d5'], ['800', '#393cc1'], ['900', '#2b2d8f']
+  ]);
+  ramp(document.getElementById('rampWarm'), [
+    ['300', '#f2d1b7'], ['400', '#e29357'], ['500', '#d5650f'], ['600', '#b4530b'],
+    ['700', '#8c3f08'], ['gold-400', '#eaaf1c'], ['gold-300', '#f9e7bb']
+  ]);
+  ramp(document.getElementById('rampNeutral'), [
+    ['0', '#ffffff'], ['25', '#fbfaf8'], ['50', '#f5f4f2'], ['100', '#eceae7'],
+    ['200', '#dedbd6'], ['300', '#c4c0b9'], ['400', '#9c978f'], ['500', '#77726b'],
+    ['600', '#565149'], ['700', '#3a3630'], ['800', '#262320'], ['900', '#171614'], ['950', '#0d0c0b']
+  ]);
+
+  /* ── Type specimen ── */
+  const TYPE = [
+    ['display',  '600', '--t-display'],
+    ['title',    '600', '--t-title'],
+    ['headline', '600', '--t-headline'],
+    ['body',     '400', '--t-body'],
+    ['callout',  '400', '--t-callout'],
+    ['subhead',  '400', '--t-subhead'],
+    ['footnote', '400', '--t-footnote'],
+    ['caption',  '400', '--t-caption'],
+    ['micro',    '500', '--t-micro']
+  ];
+  const tEl = document.getElementById('typeSpec');
+  TYPE.forEach(([name, weight, sizeVar]) => {
+    const size = root.getPropertyValue(sizeVar).trim();
+    const lh = root.getPropertyValue(sizeVar.replace('size', 'lh')).trim();
+    const row = document.createElement('div');
+    row.className = 'type-row';
+    row.innerHTML =
+      '<div class="type-meta">' + name + '<br>' + size + ' / ' + lh + '<br>weight ' + weight + '</div>' +
+      '<div style="font-size:' + size + ';line-height:' + lh + ';font-weight:' + weight + ';letter-spacing:var(--t-body-tracking)">The quick brown fox</div>';
+    tEl.appendChild(row);
+  });
+
+  /* ── Spacing ── */
+  const sEl = document.getElementById('spaceSpec');
+  [1, 2, 3, 4, 5, 6, 8, 10, 12, 16].forEach((n) => {
+    const px = n * 4;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:5px 0';
+    row.innerHTML =
+      '<span class="mono" style="font-size:11px;color:var(--text-tertiary);width:52px">--s-' + n + '</span>' +
+      '<span style="display:block;height:12px;width:' + px + 'px;background:var(--accent);border-radius:2px"></span>' +
+      '<span class="mono" style="font-size:11px;color:var(--text-tertiary)">' + px + 'px</span>';
+    sEl.appendChild(row);
+  });
+
+  /* ── Elevation ── */
+  const eEl = document.getElementById('elevSpec');
+  [0, 1, 2, 3, 4].forEach((n) => {
+    const cell = document.createElement('div');
+    cell.className = 'swatch';
+    const shadow = root.getPropertyValue('--e-' + n).trim();
+    cell.innerHTML =
+      '<div class="swatch-chip" style="background:var(--surface-sunken);display:grid;place-items:center">' +
+      '<div style="width:56px;height:36px;border-radius:8px;background:var(--surface-raised);box-shadow:' + (shadow === 'none' ? 'none' : shadow) + '"></div></div>' +
+      '<div class="swatch-body"><div class="swatch-name">--e-' + n + '</div></div>';
+    eEl.appendChild(cell);
+  });
+
+  /* ── Motion ── */
+  const mEl = document.getElementById('motionSpec');
+  const DUR = [['instant', 90], ['fast', 140], ['base', 180], ['slow', 260], ['slower', 380]];
+  DUR.forEach(([name, ms]) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:7px 0';
+    row.innerHTML =
+      '<span class="mono" style="font-size:11px;color:var(--text-tertiary);width:88px">--d-' + name + '</span>' +
+      '<span class="mono" style="font-size:11px;width:52px">' + ms + 'ms</span>' +
+      '<span style="display:block;height:8px;width:' + (ms * 1.6) + 'px;border-radius:999px;background:var(--accent)"></span>';
+    mEl.appendChild(row);
+  });
+  const hr = document.createElement('div');
+  hr.style.cssText = 'margin:18px 0 14px;height:1px;background:var(--separator)';
+  mEl.appendChild(hr);
+  [['out', 'entering'], ['in-out', 'movement'], ['ios', 'drawers, sheets'], ['spring', 'overshoot ≤ .3']].forEach(([k, u]) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:6px 0';
+    row.innerHTML =
+      '<span class="mono" style="font-size:11px;width:88px">--ease-' + k + '</span>' +
+      '<span class="muted" style="font-size:12px">' + u + '</span>';
+    mEl.appendChild(row);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIVELY DESIGN SYSTEM · tokens.css
+   ---------------------------------------------------------------------------
+   The single source of truth for every value in the product.
+
+   THREE-LAYER ARCHITECTURE
+     Layer 1 · PRIMITIVE   raw values. No meaning. Never used directly in UI.
+     Layer 2 · SEMANTIC    role names that survive a theme swap.
+     Layer 3 · COMPONENT   bindings for a specific part of the interface.
+
+   Plus two cross-cutting layers:
+     · EFFECTS   the "special" treatments — specular glass, flow spectrum, pixel motif
+     · MOTION    durations and easings
+
+   SOURCES
+     Apple HIG  · semantic colour roles, shape types (fixed/capsule/concentric),
+                  material layers, 44pt targets, ~1.3x leading
+     Sarvam AI  · the blue→orange flow spectrum (#393cc1 → #d5650f), taken from
+                  their published --gradient-* tokens
+     Mistral AI · the pixel-emblem construction (chunky pixels, one accent pixel),
+                  the hairline architectural grid, the warm paper canvas
+
+   RULE OF THUMB
+     A value enters this file once, or it does not belong in the product.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 1 · PRIMITIVES
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Neutral ramp (warm-leaning, Mistral paper register) ──────────────── */
+  --p-neutral-0:   #ffffff;
+  --p-neutral-25:  #fbfaf8;
+  --p-neutral-50:  #f5f4f2;
+  --p-neutral-100: #eceae7;
+  --p-neutral-200: #dedbd6;
+  --p-neutral-300: #c4c0b9;
+  --p-neutral-400: #9c978f;
+  --p-neutral-500: #77726b;
+  --p-neutral-600: #565149;
+  --p-neutral-700: #3a3630;
+  --p-neutral-800: #262320;
+  --p-neutral-900: #171614;
+  --p-neutral-950: #0d0c0b;
+
+  /* ── Indigo ramp — Sarvam brand blue ─────────────────────────────────── */
+  --p-indigo-300: #a8b3f2;
+  --p-indigo-400: #8189e6;
+  --p-indigo-500: #6a88e2;
+  --p-indigo-600: #556adc;
+  --p-indigo-700: #4250d5;
+  --p-indigo-800: #393cc1;
+  --p-indigo-900: #2b2d8f;
+
+  /* ── Periwinkle — Sarvam gradient-blue light stop ────────────────────── */
+  --p-periwinkle-200: #f4f7ff;
+  --p-periwinkle-300: #dde7ff;
+  --p-periwinkle-400: #bed2ff;
+
+  /* ── Orange ramp — Sarvam brand orange ───────────────────────────────── */
+  --p-orange-300: #f2d1b7;
+  --p-orange-400: #e29357;
+  --p-orange-500: #d5650f;
+  --p-orange-600: #b4530b;
+  --p-orange-700: #8c3f08;
+
+  /* ── Gold ramp — Sarvam gradient-orange light stop ───────────────────── */
+  --p-gold-300: #f9e7bb;
+  --p-gold-400: #eaaf1c;
+  --p-gold-500: #c99612;
+
+  /* ── Flame — Mistral heritage orange ─────────────────────────────────── */
+  --p-flame-500: #ff6b00;
+
+  /* ── Butter — Mistral paper canvas ───────────────────────────────────── */
+  --p-butter-100: #fffaeb;
+  --p-butter-200: #fff0c2;
+
+  /* ── Apple HIG system tints (the product UI's functional colours) ────── */
+  --p-apple-blue:   #007aff;
+  --p-apple-green:  #34c759;
+  --p-apple-red:    #ff3b30;
+  --p-apple-orange: #ff9500;
+  --p-apple-gray:   #8e8e93;
+
+  /* ── Spacing · 4px base ──────────────────────────────────────────────── */
+  --s-0: 0;
+  /* -- Fonts -------------------------------------------------------------- */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+               "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, Menlo, "Cascadia Mono", Consolas, monospace;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* ── Radii · HIG shape taxonomy ───────────────────────────────────────── */
+  /* FIXED — constant radius regardless of size */
+  --r-fixed-xs: 4px;
+  --r-fixed-sm: 6px;
+  --r-fixed-md: 8px;
+  --r-fixed-lg: 12px;
+  --r-fixed-xl: 16px;
+  --r-fixed-2xl: 20px;
+  /* CAPSULE — radius = half the height (written per component) */
+  --r-capsule: 999px;
+  /* CONCENTRIC — child radius = parent radius − padding (derived at use site) */
+
+  /* ── Border widths ───────────────────────────────────────────────────── */
+  --b-hairline: 0.5px;
+  --b-thin: 1px;
+  --b-thick: 2px;
+
+  /* ── Type scale · HIG roles, mapped to px for the web ────────────────── */
+  --t-display: 30px;   --t-display-lh: 36px;   --t-display-tracking: -0.022em;
+  --t-title:    22px;   --t-title-lh: 28px;     --t-title-tracking: -0.014em;
+  --t-headline: 17px;   --t-headline-lh: 22px;   --t-headline-tracking: -0.011em;
+  --t-body:     16px;   --t-body-lh: 22px;      --t-body-tracking: 0;
+  --t-callout:  15px;   --t-callout-lh: 20px;
+  --t-subhead:  14px;   --t-subhead-lh: 19px;
+  --t-footnote: 13px;   --t-footnote-lh: 17px;
+  --t-caption:  12px;   --t-caption-lh: 16px;
+  --t-micro:    11px;   --t-micro-lh: 14px;
+
+  --w-regular: 400;
+  --w-medium:  500;
+  --w-semibold:600;
+  --w-bold:    700;
+
+  /* ── Elevation ───────────────────────────────────────────────────────── */
+  --e-0: none;
+  --e-1: 0 1px 2px rgba(0,0,0,.05), 0 1px 1px rgba(0,0,0,.03);
+  --e-2: 0 2px 8px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --e-3: 0 12px 34px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.07);
+  --e-4: 0 24px 64px rgba(0,0,0,.22), 0 6px 16px rgba(0,0,0,.09);
+
+  /* ── Motion ──────────────────────────────────────────────────────────── */
+  /* Durations express distance and consequence: feedback is fast, layout
+     change is slower, an authored entrance is slowest. */
+  --d-instant:  90ms;   /* press release, colour tick */
+  --d-fast:     140ms;   /* hover, chip state */
+  --d-base:     180ms;   /* routine state change, toggle */
+  --d-slow:     260ms;   /* popover, panel, layout shift */
+  --d-slower:   380ms;   /* overlay enter, drawer */
+  --d-entrance: 520ms;   /* authored focal entrance */
+
+  /* Entering decelerates hard; movement eases both ways; exits are faster
+     than entrances (a separate --d-exit multiplier, not a separate curve). */
+  --ease-out:      cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:   cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-ios:      cubic-bezier(0.32, 0.72, 0, 1);
+  /* A whisper of overshoot, not a bounce. Anything above ~0.1 reads as
+     dated for a serious product tool. */
+  --ease-spring:   cubic-bezier(0.22, 1.08, 0.36, 1);
+  --ease-linear:   linear;
+
+  /* Stagger — sibling reveals only, never every section on scroll */
+  --stagger-step:  60ms;
+  --stagger-cap:   320ms;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 2 · SEMANTIC
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Surfaces ────────────────────────────────────────────────────────── */
+  --canvas: light-dark(var(--p-neutral-0), var(--p-neutral-950));
+  --surface: light-dark(var(--p-neutral-0), #000000);
+  --surface-raised: light-dark(var(--p-neutral-0), #1c1c1e);
+  --surface-sunken: light-dark(var(--p-neutral-25), #101012);
+  --surface-muted: light-dark(var(--p-neutral-100), #2c2c2e);
+  --scrim: light-dark(rgba(0,0,0,.30), rgba(0,0,0,.55));
+
+  /* ── Text ────────────────────────────────────────────────────────────── */
+  --text-primary: light-dark(var(--p-neutral-900), #ffffff);
+  --text-secondary: light-dark(rgba(60,60,67,.62), rgba(235,235,245,.62));
+  --text-tertiary: light-dark(rgba(60,60,67,.38), rgba(235,235,245,.36));
+  --text-inverse: light-dark(var(--p-neutral-0), #000000);
+
+  /* ── Lines ───────────────────────────────────────────────────────────── */
+  --separator: light-dark(rgba(60,60,67,.24), rgba(84,84,88,.60));
+  --separator-strong: light-dark(rgba(60,60,67,.36), rgba(84,84,88,.85));
+  --grid-line: light-dark(rgba(23,22,20,.055), rgba(255,255,255,.035));
+
+  /* ── Fills (translucent, HIG systemFill family) ──────────────────────── */
+  --fill-1: light-dark(rgba(118,118,128,.10), rgba(118,118,128,.20));
+  --fill-2: light-dark(rgba(118,118,128,.16), rgba(118,118,128,.30));
+  --fill-3: light-dark(rgba(118,118,128,.24), rgba(118,118,128,.42));
+  --fill-4: light-dark(rgba(118,118,128,.36), rgba(118,118,128,.56));
+
+  /* ── Accent — functional, Apple HIG systemBlue ───────────────────────── */
+  --accent: light-dark(var(--p-apple-blue), #0a84ff);
+  --accent-hover: light-dark(#0069df, #3d9bff);
+  --accent-muted: light-dark(rgba(0,122,255,.14), rgba(10,132,255,.20));
+  --accent-text: light-dark(#0071e3, #64a8ff);
+
+  /* ── Flow — Sarvam spectrum. RESERVED FOR FLOW STATES ONLY. ──────────── */
+  --flow-indigo:     var(--p-indigo-800);
+  --flow-orange:     var(--p-orange-500);
+  --flow-gold:       var(--p-gold-400);
+  --flow-periwinkle: var(--p-periwinkle-400);
+  --flow-spectrum:   linear-gradient(90deg,
+                      var(--p-indigo-800)  0%,
+                      var(--p-indigo-500)  26%,
+                      var(--p-periwinkle-400) 42%,
+                      var(--p-gold-400)   66%,
+                      var(--p-orange-500) 100%);
+  --flow-spectrum-vertical: linear-gradient(180deg,
+                      var(--p-periwinkle-400) 0%,
+                      var(--p-indigo-800)  52%,
+                      var(--p-orange-500) 100%);
+  --flow-aurora:
+      radial-gradient(44vw 32vh at 6% 2%,  rgba(57,60,193,.075), transparent 62%),
+      radial-gradient(40vw 28vh at 96% 98%, rgba(213,101,15,.065), transparent 62%);
+
+  /* ── Effect · specular rim (the fake lighter border) ─────────────────── */
+  /* A true 1px gradient ring, not four flat lines. Four stops, read as
+     physics: the light source at the top-left, falloff through edge-on,
+     refraction into shadow at the bottom-right, then a bounce of light off
+     the far corner. Rendered with a mask so it never bleeds into a
+     translucent face — see .u-specular. */
+  --spec-hi: light-dark(rgba(255,255,255,.95), rgba(255,255,255,.40));  /* the light source */
+  --spec-hi-mid: light-dark(rgba(255,255,255,.45), rgba(255,255,255,.16));  /* falloff */
+  --spec-lo: light-dark(rgba(0,0,0,.20), rgba(0,0,0,.72));  /* refraction */
+  --spec-lo-in: light-dark(rgba(0,0,0,.07), rgba(0,0,0,.30));  /* the far wall, seen from inside */
+  --spec-bounce: light-dark(rgba(255,255,255,.45), rgba(255,255,255,.18));  /* corner bounce */
+  --spec-inner: light-dark(rgba(255,255,255,.30), rgba(255,255,255,.12));  /* light bleeding into the glass */
+  /* Three layers, because one gradient cannot do both jobs on a wide element:
+     a corner light, a bounce off the far corner, and an edge-on ramp that
+     darkens the bottom. A single 148deg gradient puts its dark stop off the
+     element entirely on a 720x56 capsule. */
+  --spec-ring:
+    radial-gradient(70% 130% at 100% 100%,
+      var(--spec-bounce) 0%, rgba(255,255,255,0) 45%),
+    radial-gradient(150% 260% at 0% 0%,
+      var(--spec-hi) 0%, var(--spec-hi-mid) 20%, rgba(255,255,255,0) 46%),
+    linear-gradient(180deg,
+      rgba(0,0,0,0) 42%, var(--spec-lo) 92%);
+  /* Focus re-lights the ring instead of drawing a halo around the control */
+  --spec-ring-focus: linear-gradient(148deg,
+      var(--accent) 0%,
+      color-mix(in srgb, var(--accent) 42%, transparent) 19%,
+      transparent 41%,
+      transparent 55%,
+      rgba(0,0,0,.22) 84%,
+      color-mix(in srgb, var(--accent) 72%, transparent) 100%);
+  /* For a saturated fill: the rim reads as a lit sphere, not an outline */
+  --spec-ring-on-accent: linear-gradient(148deg,
+      rgba(255,255,255,.88) 0%,
+      rgba(255,255,255,.32) 19%,
+      rgba(255,255,255,0) 44%,
+      rgba(0,0,0,0)     60%,
+      rgba(0,0,0,.22)   88%,
+      rgba(255,255,255,.30) 100%);
+  --sheen: light-dark(linear-gradient(112deg,
+      transparent 24%, rgba(255,255,255,.30) 43%, transparent 62%), linear-gradient(112deg,
+        transparent 24%, rgba(255,255,255,.14) 43%, transparent 62%));
+
+  /* ── Effect · pixel motif (Mistral) ──────────────────────────────────── */
+  --pixel-size: 8px;
+  --pixel-line: light-dark(rgba(23,22,20,.05), rgba(255,255,255,.035));
+  --pixel-grid:
+      repeating-linear-gradient(0deg,  var(--pixel-line) 0 1px, transparent 1px var(--pixel-size)),
+      repeating-linear-gradient(90deg, var(--pixel-line) 0 1px, transparent 1px var(--pixel-size));
+  --arch-size: 32px;
+  --arch-line: light-dark(rgba(23,22,20,.05), rgba(255,255,255,.028));
+  --arch-grid:
+      repeating-linear-gradient(0deg,  var(--arch-line) 0 1px, transparent 1px var(--arch-size)),
+      repeating-linear-gradient(90deg, var(--arch-line) 0 1px, transparent 1px var(--arch-size));
+
+  /* ── Effect · glass material ─────────────────────────────────────────── */
+  --glass-blur: saturate(180%) blur(20px);
+  --glass-bg: light-dark(rgba(242,242,247,.72), rgba(28,28,30,.70));
+
+  /* ── Focus ───────────────────────────────────────────────────────────── */
+  --focus-ring: 0 0 0 3.5px rgba(0,122,255,.16);
+  --focus-edge: rgba(0,122,255,.40);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 3 · COMPONENT
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Composer ────────────────────────────────────────────────────────── */
+  /* ── Shadow colours ──────────────────────────────────────────────────
+     Shadows are the one place light-dark() cannot go: it carries colours,
+     not shadows. So the shadow keeps its geometry and borrows a
+     theme-aware colour instead. */
+  --shadow-color-1: light-dark(rgba(0,0,0,.05), rgba(0,0,0,.50));
+  --shadow-color-2: light-dark(rgba(0,0,0,.07), rgba(0,0,0,.40));
+
+  --composer-radius: 28px;          /* capsule at rest */
+  --composer-pad:    8px;
+  --composer-chip-radius: 20px;     /* concentric: 28 − 8 */
+  --composer-bg:     var(--fill-2);
+  --composer-bg-focus: var(--fill-3);
+  --composer-min-height: 56px;
+  /* the shadow gives the refracting bottom edge something to read against */
+  --composer-shadow-1: 0 1px 2px var(--shadow-color-1);
+  --composer-shadow-2: 0 6px 20px var(--shadow-color-2);
+
+  /* ── Sidebar ─────────────────────────────────────────────────────────── */
+  --sidebar-width: 244px;
+  --sidebar-bg: var(--glass-bg);
+  --sidebar-radius: 6px;
+
+  /* ── Popover ─────────────────────────────────────────────────────────── */
+  --popover-bg:      var(--surface-raised);
+  --popover-radius:  20px;
+  --popover-border:  1px solid var(--separator);
+  --popover-shadow:  0 12px 34px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08);
+
+  /* ── Bubble ─────────────────────────────────────────────────────────── */
+  --bubble-radius: 18px;
+  --bubble-bg:     var(--fill-1);
+
+  /* ── Buttons ─────────────────────────────────────────────────────────── */
+  --btn-radius:  10px;
+  --btn-height:  32px;
+  --send-size:   34px;
+  --send-bg:     var(--accent);
+  --send-bg-off: var(--fill-3);
+  --send-bg-stop:var(--accent);
+
+  /* ── Message column ──────────────────────────────────────────────────── */
+  --column-width: 720px;
+  --thread-gap:   26px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EFFECTS · reusable treatments
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Specular rim on translucent surfaces.
+   The ring is a real 1px gradient border built with a mask: the pseudo-element
+   is painted with the gradient and the content box is masked out, leaving
+   only the edge. Unlike the background-clip technique it needs no opaque
+   face, so it stays clean under backdrop-filter. */
+.u-specular {
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 0 var(--spec-inner),
+    inset 0 -1px 0 0 var(--spec-lo-in);
+}
+.u-specular::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--spec-ring);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+/* Focus re-lights the ring rather than drawing a halo around the control */
+.u-specular[data-focused="true"]::after { background: var(--spec-ring-focus); }
+
+/* True gradient edge for opaque surfaces: the border-box layer paints the
+   edge, the padding-box layer paints the face. */
+.u-edge-gradient {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--surface-raised), var(--surface-raised)) padding-box,
+    linear-gradient(140deg,
+      rgba(255,255,255,.92)  0%,
+      rgba(255,255,255,.30) 15%,
+      transparent           38%,
+      transparent           62%,
+      rgba(0,0,0,.12)       82%,
+      rgba(255,255,255,.26) 100%) border-box;
+}
+
+/* The Liquid Glass sweep — a moving highlight that reveals on hover. */
+.u-sheen { position: relative; overflow: hidden; }
+.u-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: var(--sheen);
+  opacity: 0;
+  transition: opacity var(--d-slow) var(--ease-out);
+}
+.u-sheen:hover::after { opacity: 1; }
+
+/* The flow spectrum as a signal. Never a surface fill. */
+.u-flow-text {
+  background: var(--flow-spectrum);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.u-flow-bar { background: var(--flow-spectrum); }
+
+/* Pixel motif overlay. */
+.u-pixel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--pixel-grid);
+  opacity: .55;
+}
+.u-arch-grid {
+  background-image: var(--arch-grid);
+  background-size: var(--arch-size) var(--arch-size);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL RESETS · shared base styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* :where() keeps the wildcard at zero specificity, so this reset can never
+   out-rank a component's own box model or a utility's pseudo-element */
+.ds-reset :where(*, *::before, *::after) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.ds-reset {
+  box-sizing: border-box;
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--t-body);
+  line-height: 1.375;               /* HIG ≈ 1.3× */
+  color: var(--text-primary);
+  background: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+/* :where() keeps the element part at zero specificity, so this reset can
+   never out-rank a component's own button styles */
+.ds-reset :where(button, input, textarea, select) {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.ds-reset svg { display: block; }
+.ds-reset :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-fixed-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-reset *, .ds-reset *::before, .ds-reset *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Theme resolution ────────────────────────────────────────────────────
+   light-dark() reads color-scheme, so one declaration carries both themes.
+   By default the OS preference wins. An explicit user choice pins it.
+   There is no second copy of the palette to keep in sync. */
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }

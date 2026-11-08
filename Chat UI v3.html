@@ -1,0 +1,2118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lively — Chat</title>
+<link rel="stylesheet" href="design-system/tokens.css">
+<link rel="stylesheet" href="design-system/motion.css">
+<link rel="stylesheet" href="design-system/lively-app.css">
+<link rel="stylesheet" href="openall-mockups/mockups.css">
+<style>
+  /* ── Enhanced UI & Markdown Tokens ── */
+  .main-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    padding: 0 var(--s-5);
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 10;
+  }
+  .main-head-left {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .ms-modelbar {
+    padding: 0;
+  }
+  .thought-box {
+    margin: var(--s-2) 0 var(--s-3);
+    border-radius: var(--r-fixed-md);
+    background: var(--fill-1);
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+    font-size: var(--t-footnote);
+  }
+  .thought-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: var(--s-2) var(--s-3);
+    cursor: pointer;
+    font-weight: var(--w-medium);
+    color: var(--text-secondary);
+    user-select: none;
+    outline: none;
+    transition: background var(--d-fast) var(--ease-out);
+  }
+  .thought-summary:hover {
+    background: var(--fill-2);
+  }
+  .thought-body {
+    padding: var(--s-2) var(--s-3) var(--s-3);
+    color: var(--text-tertiary);
+    border-top: 1px solid var(--border-subtle);
+    white-space: pre-wrap;
+    font-family: var(--font-mono, monospace);
+    font-size: var(--t-micro);
+    line-height: 1.5;
+  }
+  .bubble-markdown pre {
+    position: relative;
+    margin: var(--s-3) 0;
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-fixed-md);
+    background: var(--bg-canvas-dark, #18181b);
+    color: #f4f4f5;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .bubble-markdown pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font-size: 12.5px;
+  }
+  .code-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .code-lang-label {
+    font-size: 11px;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+  .code-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: var(--r-fixed-sm);
+    background: rgba(255,255,255,0.12);
+    color: #e4e4e7;
+    border: none;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background var(--d-fast) var(--ease-out);
+  }
+  .code-copy-btn:hover {
+    background: rgba(255,255,255,0.22);
+  }
+  .bubble-markdown a {
+    color: var(--accent, #007aff);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .bubble-markdown a:hover {
+    opacity: 0.8;
+  }
+  .bubble-markdown code:not(pre code) {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--fill-2);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9em;
+  }
+  .bubble-markdown table {
+    width: 100%;
+    margin: var(--s-3) 0;
+    border-collapse: collapse;
+    font-size: var(--t-footnote);
+  }
+  .bubble-markdown th, .bubble-markdown td {
+    padding: 6px 12px;
+    border: 1px solid var(--border-subtle);
+    text-align: left;
+  }
+  .bubble-markdown th {
+    background: var(--fill-2);
+    font-weight: var(--w-semibold);
+  }
+  .bubble-markdown blockquote {
+    margin: var(--s-2) 0;
+    padding-left: var(--s-3);
+    border-left: 3px solid var(--accent);
+    color: var(--text-secondary);
+  }
+  .bubble-markdown ul, .bubble-markdown ol {
+    margin: var(--s-2) 0 var(--s-2) var(--s-4);
+  }
+  .bubble-markdown li {
+    margin-bottom: 3px;
+  }
+  .bubble-markdown h1, .bubble-markdown h2, .bubble-markdown h3 {
+    margin: var(--s-3) 0 var(--s-2);
+    font-weight: var(--w-semibold);
+    color: var(--text-primary);
+  }
+  .bubble-markdown h1 { font-size: 1.25em; }
+  .bubble-markdown h2 { font-size: 1.15em; }
+  .bubble-markdown h3 { font-size: 1.05em; }
+
+  /* Model Modal Dialog */
+  .model-modal-scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--d-fast) var(--ease-out);
+  }
+  .model-modal-scrim[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .model-modal-panel {
+    width: min(540px, 92vw);
+    max-height: 85vh;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-fixed-lg, 16px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.96);
+    transition: transform var(--d-fast) var(--ease-spring);
+  }
+  .model-modal-scrim[data-open="true"] .model-modal-panel {
+    transform: scale(1);
+  }
+  .model-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--s-4) var(--s-5);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .model-modal-title {
+    font-weight: var(--w-semibold);
+    font-size: var(--t-body);
+  }
+  .model-modal-scroll {
+    padding: var(--s-4) var(--s-5);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+  }
+  .model-group-title {
+    font-size: var(--t-micro);
+    font-weight: var(--w-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--s-2);
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+  }
+  .model-card-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--r-fixed-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--fill-1);
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 6px;
+    transition: all var(--d-fast) var(--ease-out);
+  }
+  .model-card-btn:hover {
+    background: var(--fill-2);
+    border-color: var(--border-strong);
+  }
+  .model-card-btn[data-selected="true"] {
+    background: var(--accent-soft, rgba(0,122,255,0.1));
+    border-color: var(--accent, #007aff);
+  }
+  .model-card-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .model-card-name {
+    font-weight: var(--w-medium);
+    font-size: var(--t-body);
+  }
+  .model-card-meta {
+    font-size: var(--t-micro);
+    color: var(--text-tertiary);
+  }
+  .tool-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--t-micro);
+    color: var(--accent);
+    background: var(--accent-soft, rgba(0,122,255,0.1));
+    padding: 2px 8px;
+    border-radius: var(--r-capsule);
+    margin-bottom: var(--s-2);
+  }
+  .provider-badge {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── OpenUI Interactive Generative Components ── */
+  .openui-widget {
+    margin: var(--s-3) 0;
+    border-radius: var(--r-fixed-lg, 12px);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface-elevated, var(--bg-surface));
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .openui-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--fill-1);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .openui-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+  }
+  .openui-tabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--fill-2);
+    padding: 2px;
+    border-radius: var(--r-control, 6px);
+  }
+  .openui-tab-btn {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .openui-tab-btn.active {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .openui-preview-pane {
+    padding: var(--s-4);
+  }
+  .openui-code-pane {
+    display: none;
+    padding: var(--s-3) var(--s-4);
+    background: #18181b;
+    color: #f4f4f5;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  .openui-widget[data-view="code"] .openui-preview-pane { display: none; }
+  .openui-widget[data-view="code"] .openui-code-pane { display: block; }
+
+  /* OpenUI Components */
+  .openui-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+  }
+  .openui-card {
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    padding: var(--s-4);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  }
+  .openui-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: var(--s-3);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 6px;
+  }
+  .openui-table-wrap {
+    overflow-x: auto;
+    margin: var(--s-2) 0;
+  }
+  .openui-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .openui-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--fill-1);
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .openui-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+  }
+  .openui-table tr:hover td {
+    background: var(--fill-1);
+  }
+  .openui-table-caption {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    font-style: italic;
+  }
+  .openui-chart {
+    margin: var(--s-2) 0;
+  }
+  .openui-chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .openui-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+  }
+  .openui-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .openui-field-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  .openui-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .openui-input {
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle);
+    background: var(--fill-1);
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .openui-input:focus {
+    border-color: var(--accent);
+  }
+  .openui-submit-btn, .openui-action-btn {
+    align-self: flex-start;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+  }
+  .openui-submit-btn:hover, .openui-action-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  .openui-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: var(--s-2) 0;
+  }
+  .openui-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .openui-step-indicator {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .openui-step[data-status="done"] .openui-step-indicator {
+    background: var(--color-green, #10b981);
+    color: #fff;
+  }
+  .openui-step[data-status="active"] .openui-step-indicator {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+  }
+  .openui-step[data-status="pending"] .openui-step-indicator {
+    background: var(--fill-2);
+    color: var(--text-tertiary);
+  }
+  .openui-step-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .openui-step-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(16,185,129,0.15);
+    color: #10b981;
+    margin-left: 6px;
+  }
+  /* Generated Image Cards (Gemini 3.1 Flash-Lite Image) */
+  .generated-image-card {
+    margin: var(--s-3) 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-raised);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    max-width: 540px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .generated-image-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.14);
+  }
+  .generated-img-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #09090b;
+    overflow: hidden;
+  }
+  .generated-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+  .generated-img-wrap:hover .generated-img {
+    transform: scale(1.02);
+  }
+  .img-dl-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: background 0.15s ease, transform 0.15s ease;
+    z-index: 2;
+  }
+  .img-dl-btn:hover {
+    background: rgba(0, 0, 0, 0.95);
+    transform: translateY(-1px);
+    color: #ffffff;
+  }
+  .generated-img-footer {
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--glass-bg);
+  }
+  .img-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+  }
+  .img-caption {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    font-style: italic;
+    word-break: break-word;
+  }
+</style>
+</head>
+<body>
+<div class="app ds-reset" id="app" data-sidebar="open" data-flow="off">
+  <div class="aurora" aria-hidden="true"></div>
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar" aria-label="Conversation list">
+    <div class="side-head">
+      <button class="side-title" id="brandBtn" title="Start a new chat">
+        <svg class="app-mark" width="26" height="23" viewBox="0 0 24 21" aria-hidden="true">
+          <rect x="0" y="0" width="3" height="3"/><rect x="0" y="3" width="3" height="3"/>
+          <rect x="0" y="6" width="3" height="3"/><rect x="0" y="9" width="3" height="3"/>
+          <rect x="0" y="12" width="3" height="3"/><rect x="0" y="15" width="3" height="3"/>
+          <rect x="0" y="18" width="3" height="3"/><rect x="3" y="18" width="3" height="3"/>
+          <rect class="acc" x="6" y="18" width="3" height="3"/>
+          <rect x="12" y="0" width="3" height="3"/><rect x="15" y="0" width="3" height="3"/>
+          <rect x="18" y="0" width="3" height="3"/><rect x="12" y="3" width="3" height="3"/>
+          <rect x="12" y="6" width="3" height="3"/><rect x="15" y="6" width="3" height="3"/>
+          <rect x="12" y="9" width="3" height="3"/><rect x="12" y="12" width="3" height="3"/>
+        </svg>
+        <span>Lively</span>
+      </button>
+      <button class="new-chat" id="newChatBtn" title="New conversation">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <span>New chat</span>
+      </button>
+      <button class="side-collapse-btn" id="sideCollapseBtn" title="Collapse sidebar (Ctrl+B)" aria-label="Collapse sidebar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="3.2"/><path d="M9 4.5v15"/><path d="m14 10-2 2 2 2"/></svg>
+      </button>
+    </div>
+
+    <div class="side-scroll">
+      <div class="group-label">Conversations</div>
+      <nav class="conv-list" id="convList" aria-label="Conversations"></nav>
+    </div>
+
+    <div class="side-foot">
+      <button class="account" id="acctBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="acctMenu">
+        <span class="avatar" id="acctAvatar" aria-hidden="true">LF</span>
+        <span class="account-name" id="acctName">Lively Franklin</span>
+        <span class="acct-chev" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9.5 6 6 6-6"/></svg>
+        </span>
+      </button>
+
+      <div class="menu" id="acctMenu" role="menu" aria-label="Account">
+        <div class="menu-label">Account</div>
+        <button class="menu-item" role="menuitem" id="miSettings">
+          <span class="m-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg></span>
+          <span class="m-label">Settings</span>
+        </button>
+        <button class="menu-item" role="menuitem" id="miShortcuts">
+          <span class="m-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2.6"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></svg></span>
+          <span class="m-label">Keyboard shortcuts</span>
+        </button>
+        <div class="menu-sep"></div>
+        <button class="menu-item" role="menuitem" id="miReset" data-tone="danger">
+          <span class="m-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 12a8.2 8.2 0 1 1-2.5-5.9"/><path d="M20.2 3.6v5h-5"/></svg></span>
+          <span class="m-label">Reset demo</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main">
+    <div class="flowbar" aria-hidden="true"></div>
+
+    <!-- ══ HEADER WITH MODEL BAR ══ -->
+    <header class="main-head">
+      <div class="main-head-left">
+        <button class="side-open" id="sideOpenBtn" title="Toggle sidebar (Ctrl+B)" aria-label="Toggle sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="3.2"/><path d="M9 4.5v15"/></svg>
+        </button>
+
+        <div class="ms-modelbar">
+          <button class="ms-model" id="modelPickerBtn" aria-haspopup="dialog" aria-label="Choose a model">
+            <span class="pdot" data-state="available" id="activeModelDot"></span>
+            <span id="activeModelLabel">Lively Prototype</span>
+            <svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9.5 6 6 6-6"/></svg>
+          </button>
+          <div class="ms-providers" id="providerStatusList" role="img" aria-label="Provider status">
+            <span class="pdot" data-state="available" title="OpenRouter: available"></span>
+            <span class="pdot" data-state="available" title="Groq: available"></span>
+            <span class="pdot" data-state="available" title="Google: available"></span>
+            <span class="pdot" data-state="available" title="Mistral: available"></span>
+          </div>
+          <span class="ms-badge" data-tone="ok" id="statusBadge">streaming</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:var(--s-2);">
+        <button class="act" id="newThreadTopBtn" title="Start a new chat" aria-label="New chat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="side-scrim" id="sideScrim"></div>
+
+    <div class="thread" id="thread">
+      <div class="thread-inner" id="threadInner"></div>
+    </div>
+
+    <div class="composer-wrap">
+      <div class="composer" id="composer">
+
+        <div class="popover tools u-specular" id="toolsPopover" role="menu" aria-label="Tools">
+          <button class="tool" role="menuitem" data-tint="green">
+            <span class="tool-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="3.2"/><circle cx="8.5" cy="9.5" r="1.7"/><path d="m3.8 17.2 5-4.4 3.4 2.8 3.1-2.4 5 4"/></svg></span>
+            Create an image
+          </button>
+          <button class="tool" role="menuitem" data-tint="orange">
+            <span class="tool-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8.3 17.9l-4.2 1 1-4.2Z"/><path d="m14.6 5.4 4 4"/></svg></span>
+            Write or edit
+          </button>
+          <button class="tool" role="menuitem" data-tint="blue">
+            <span class="tool-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2" stroke-linecap="round"/></svg></span>
+            Search the web
+          </button>
+          <button class="tool" role="menuitem">
+            <span class="tool-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8.5 8.5-3 3.5 3 3.5M15.5 8.5l3 3.5-3 3.5M13.6 5.5l-3.2 13"/></svg></span>
+            Run code
+          </button>
+        </div>
+
+        <div class="composer-bar u-specular">
+          <button class="c-btn" id="toolsBtn" aria-expanded="false" aria-haspopup="menu" aria-label="Add tools" title="Add tools">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+
+          <textarea class="composer-input" id="input" rows="1" placeholder="Ask anything"
+                    spellcheck="true" autocomplete="off" aria-label="Message"></textarea>
+
+          <div class="composer-right">
+            <span class="chip-wrap">
+              <button class="model-chip" id="effortBtn" aria-expanded="false" aria-haspopup="dialog" aria-label="Reasoning effort: Medium">
+                <svg class="chip-bolt" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 2.5 5.6 13.2H11l-1 8.3 8-10.7h-5.4Z"/></svg>
+                <span class="chip-label" id="effortChipLabel">Medium</span>
+                <span class="chip-short" id="effortChipShort">Med</span>
+                <svg class="chip-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9.5 6 6 6-6"/></svg>
+              </button>
+
+              <div class="popover effort u-specular" id="effortPopover" role="dialog" aria-label="Reasoning effort">
+                <div class="effort-head">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 2.5 5.6 13.2H11l-1 8.3 8-10.7h-5.4Z"/></svg>
+                  <span class="effort-level" id="effortLevel">Medium</span>
+                  <button class="act" id="effortReset" title="Reset to Medium" aria-label="Reset effort to Medium">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 12a8.2 8.2 0 1 1-2.5-5.9"/><path d="M20.2 3.6v5h-5"/></svg>
+                  </button>
+                </div>
+                <div class="effort-slider" id="effortSlider" role="slider" tabindex="0"
+                     aria-label="Reasoning effort" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="Medium">
+                  <span class="effort-track"></span>
+                  <span class="effort-fill" id="effortFill"></span>
+                  <span class="effort-knob" id="effortKnob"></span>
+                  <span class="effort-dots" id="effortDots"><i class="on"></i><i class="on"></i><i></i></span>
+                </div>
+                <div class="effort-labels"><span>Low</span><span>Medium</span><span>High</span></div>
+              </div>
+            </span>
+
+            <button class="voice" id="voiceBtn" aria-pressed="false" aria-label="Dictate" title="Dictate">
+              <span class="v-mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.8" width="6" height="10.6" rx="3"/><path d="M5.4 11.2a6.6 6.6 0 0 0 13.2 0"/><path d="M12 17.8v3.4"/></svg></span>
+              <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </button>
+
+            <button class="send u-specular" id="sendBtn" data-state="send" data-ready="false" aria-disabled="true" aria-label="Send message">
+              <span class="glyph">
+                <svg class="g-send" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19.5V4.8"/><path d="m5.6 11.2 6.4-6.4 6.4 6.4"/></svg>
+                <svg class="g-stop" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3.4"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="composer-hint">Streaming live from Lively Backend. Double-check critical outputs.</p>
+    </div>
+  </main>
+</div>
+
+<!-- ══ MODEL SELECTION MODAL ══ -->
+<div class="model-modal-scrim" id="modelModal" role="dialog" aria-modal="true" aria-label="Choose a model">
+  <div class="model-modal-panel">
+    <div class="model-modal-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="model-modal-title">Choose a Model</span>
+        <button type="button" class="act" id="refreshModelsModalBtn" title="Fetch live models from providers" style="font-size:12px;gap:4px;display:flex;align-items:center;padding:3px 8px;border-radius:6px;background:var(--fill-2);cursor:pointer;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+          Live Refresh
+        </button>
+      </div>
+      <button class="act" id="modelModalClose" title="Close" aria-label="Close">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="model-modal-scroll" id="modelModalList"></div>
+  </div>
+</div>
+
+<script src="design-system/lively-settings.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+  const app = $('app'), thread = $('thread'), threadInner = $('threadInner');
+  const convList = $('convList'), input = $('input'), sendBtn = $('sendBtn');
+  const voiceBtn = $('voiceBtn'), toolsBtn = $('toolsBtn'), effortBtn = $('effortBtn');
+  const toolsPop = $('toolsPopover'), effortPop = $('effortPopover');
+  const modelPickerBtn = $('modelPickerBtn'), modelModal = $('modelModal'), modelModalClose = $('modelModalClose');
+  const modelModalList = $('modelModalList'), activeModelLabel = $('activeModelLabel');
+
+  const BACKEND_BASE = (function () {
+    const override = localStorage.getItem('lively.backendUrl');
+    if (override) return override.replace(/\/+$/, '');
+    if (window.location.protocol === 'file:') return 'http://localhost:3001';
+    // When served via HTTP/HTTPS on any port, relative URL works with server and proxies
+    return '';
+  })();
+
+  let CATALOG = [
+    {
+      group: 'Lively Prototype Engine',
+      providerId: 'lively',
+      models: [
+        { id: 'lively/prototype-smart', label: 'Lively Prototype (Instant)', context: '128k', desc: 'Zero-config local streaming prototype intelligence with reasoning and formatting' }
+      ]
+    },
+    {
+      group: 'Groq (Ultra-Fast)',
+      providerId: 'groq',
+      models: [
+        { id: 'groq/llama-3.3-70b-versatile', label: 'Llama 3.3 70B', context: '131k', desc: 'Fast general reasoning and code' },
+        { id: 'groq/llama-3.1-8b-instant', label: 'Llama 3.1 8B Instant', context: '131k', desc: 'Instant low-latency model' },
+        { id: 'groq/qwen/qwen3-32b', label: 'Qwen 3 32B', context: '131k', desc: 'Multilingual and analytical' }
+      ]
+    },
+    {
+      group: 'OpenRouter',
+      providerId: 'openrouter',
+      models: [
+        { id: 'openrouter/anthropic/claude-sonnet-4', label: 'Claude Sonnet 4', context: '200k', desc: 'Superior reasoning, creative writing, and artifacts' },
+        { id: 'openrouter/openai/gpt-4.1', label: 'GPT-4.1', context: '1M', desc: 'Deep synthesis and instruction following' },
+        { id: 'openrouter/google/gemini-2.5-pro', label: 'Gemini 2.5 Pro', context: '1M', desc: 'Massive context multimodal model' },
+        { id: 'openrouter/mistralai/mistral-small-3.2-24b-instruct:free', label: 'Mistral Small 3.2 (Free)', context: '128k', desc: 'High capability free-tier model' }
+      ]
+    },
+    {
+      group: 'Google AI Studio',
+      providerId: 'google',
+      models: [
+        { id: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash', context: '1M', desc: 'Fast multimodal reasoning' },
+        { id: 'google/gemini-2.5-pro', label: 'Gemini 2.5 Pro', context: '1M', desc: 'Complex reasoning across documents' }
+      ]
+    },
+    {
+      group: 'Mistral AI',
+      providerId: 'mistral',
+      models: [
+        { id: 'mistral/mistral-large-latest', label: 'Mistral Large', context: '131k', desc: 'Flagship reasoning and code' }
+      ]
+    },
+    {
+      group: 'Ollama (Local)',
+      providerId: 'ollama',
+      models: [
+        { id: 'ollama/llama3', label: 'Llama 3 (Local)', context: '8k', desc: 'Local Ollama endpoint on localhost:11434' }
+      ]
+    }
+  ];
+
+  const state = {
+    conversations: [],
+    activeId: null,
+    streaming: false,
+    pending: null,
+    abortController: null,
+    effort: 1,
+    selectedModel: localStorage.getItem('lively.model') || 'lively/prototype-smart'
+  };
+
+  const EFFORTS = ['Low', 'Medium', 'High'];
+
+  /* ── Storage ──────────────────────────────────────────────────────── */
+  function loadSaved() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('lively.conversations'));
+      if (Array.isArray(saved) && saved.length > 0) {
+        state.conversations = saved;
+        state.activeId = localStorage.getItem('lively.activeId') || saved[0].id;
+      }
+    } catch (e) {}
+    if (!state.conversations.length) {
+      newConversation();
+    }
+  }
+
+  function saveConversations() {
+    try {
+      localStorage.setItem('lively.conversations', JSON.stringify(state.conversations));
+      if (state.activeId) localStorage.setItem('lively.activeId', state.activeId);
+      localStorage.setItem('lively.model', state.selectedModel);
+    } catch (e) {}
+  }
+
+  /* ── Toast ────────────────────────────────────────────────────────── */
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.dataset.leaving = 'true'; setTimeout(() => t.remove(), 200); }, 2000);
+  }
+
+  /* ── Models ───────────────────────────────────────────────────────── */
+  function getModelLabel(id) {
+    for (const group of CATALOG) {
+      for (const m of group.models) {
+        if (m.id === id) return m.label;
+      }
+    }
+    return id;
+  }
+
+  let cachedProviders = [];
+  let liveModelsList = [];
+
+  async function fetchLiveModels(force = false) {
+    try {
+      const url = `${BACKEND_BASE}/api/models` + (force ? '?refresh=true' : '');
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.data || !Array.isArray(data.data)) return;
+      liveModelsList = data.data;
+
+      // Group models by providerName
+      const groupsMap = new Map();
+      liveModelsList.forEach(m => {
+        const pName = m.providerName || m.providerId;
+        if (!groupsMap.has(pName)) {
+          groupsMap.set(pName, {
+            group: pName,
+            providerId: m.providerId,
+            models: []
+          });
+        }
+        groupsMap.get(pName).models.push({
+          id: m.fullId || `${m.providerId}/${m.id}`,
+          label: m.label || m.id,
+          context: m.contextLimit ? Math.round(m.contextLimit / 1000) + 'k' : '128k',
+          desc: (m.vision ? 'Vision · ' : '') + (m.tools ? 'Tools · ' : '') + (m.isLive ? 'Live Verified' : 'Catalog'),
+          isLive: Boolean(m.isLive)
+        });
+      });
+
+      if (groupsMap.size > 0) {
+        CATALOG = Array.from(groupsMap.values());
+      }
+      updateModelUI();
+      if (modelModal.dataset.open === 'true') {
+        renderModelModal();
+      }
+    } catch (e) {
+      // Keep static defaults if backend offline
+    }
+  }
+
+  function updateModelUI() {
+    activeModelLabel.textContent = getModelLabel(state.selectedModel);
+    const activeDot = $('activeModelDot');
+    if (activeDot) {
+      const pid = state.selectedModel.startsWith('lively/') ? 'lively' : state.selectedModel.split('/')[0];
+      const prov = cachedProviders.find(p => p.id === pid);
+      if (prov) {
+        activeDot.dataset.state = prov.state || (prov.hasKey ? 'available' : 'needs-key');
+      } else {
+        activeDot.dataset.state = 'available';
+      }
+    }
+  }
+
+  async function refreshProviderStatus() {
+    try {
+      const res = await fetch(`${BACKEND_BASE}/api/providers`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.providers || !Array.isArray(data.providers)) return;
+      cachedProviders = data.providers;
+
+      const listEl = $('providerStatusList');
+      if (listEl) {
+        listEl.innerHTML = '';
+        data.providers.forEach(p => {
+          const dot = document.createElement('span');
+          dot.className = 'pdot';
+          const st = p.state || (p.hasKey ? 'available' : 'needs-key');
+          dot.dataset.state = st;
+          dot.title = `${p.name}: ${st}${p.isLive ? ' (Live)' : ''}`;
+          listEl.appendChild(dot);
+        });
+      }
+      updateModelUI();
+    } catch (e) {
+      // Backend offline or unreachable
+    }
+  }
+
+  function renderModelModal() {
+    modelModalList.innerHTML = '';
+    CATALOG.forEach(group => {
+      const gTitle = document.createElement('div');
+      gTitle.className = 'model-group-title';
+      gTitle.innerHTML = escapeHtml(group.group) + (group.models.some(m => m.isLive) ? '<span class="live-badge">LIVE ACTIVE</span>' : '');
+      modelModalList.appendChild(gTitle);
+
+      group.models.forEach(m => {
+        const btn = document.createElement('button');
+        btn.className = 'model-card-btn';
+        btn.dataset.selected = String(m.id === state.selectedModel);
+        btn.innerHTML =
+          '<div class="model-card-left">' +
+            '<div style="display:flex;align-items:center;">' +
+              '<span class="model-card-name">' + escapeHtml(m.label) + '</span>' +
+              (m.isLive ? '<span class="live-badge">LIVE</span>' : '') +
+            '</div>' +
+            '<span class="model-card-meta">' + escapeHtml(m.desc) + ' · ' + m.context + ' context</span>' +
+          '</div>' +
+          (m.id === state.selectedModel ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' : '');
+
+        btn.addEventListener('click', () => {
+          state.selectedModel = m.id;
+          saveConversations();
+          updateModelUI();
+          closeModelModal();
+          toast('Switched to ' + m.label);
+        });
+        modelModalList.appendChild(btn);
+      });
+    });
+  }
+
+  function openModelModal() {
+    renderModelModal();
+    modelModal.dataset.open = 'true';
+  }
+  function closeModelModal() {
+    modelModal.dataset.open = 'false';
+  }
+
+  modelPickerBtn.addEventListener('click', openModelModal);
+  modelModalClose.addEventListener('click', closeModelModal);
+  modelModal.addEventListener('click', (e) => {
+    if (e.target === modelModal) closeModelModal();
+  });
+
+  const refreshModelsModalBtn = $('refreshModelsModalBtn');
+  if (refreshModelsModalBtn) {
+    refreshModelsModalBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      refreshModelsModalBtn.style.opacity = '0.5';
+      toast('Fetching live models from providers…');
+      await fetchLiveModels(true);
+      await refreshProviderStatus();
+      refreshModelsModalBtn.style.opacity = '1';
+      toast('Live models updated!');
+    });
+  }
+
+  /* ── Conversations ────────────────────────────────────────────────── */
+  function newConversation() {
+    const id = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const conv = {
+      id: id,
+      title: 'New chat',
+      created: Date.now(),
+      model: state.selectedModel,
+      turns: []
+    };
+    state.conversations.unshift(conv);
+    state.activeId = id;
+    saveConversations();
+    return conv;
+  }
+
+  function active() {
+    return state.conversations.find(c => c.id === state.activeId) || state.conversations[0];
+  }
+
+  function titleFrom(text) {
+    const t = text.trim().replace(/\s+/g, ' ');
+    return t.length > 38 ? t.slice(0, 38).trimEnd() + '…' : t;
+  }
+
+  function renderSidebar() {
+    convList.innerHTML = '';
+    state.conversations.forEach(conv => {
+      const btn = document.createElement('button');
+      btn.className = 'conv';
+      btn.setAttribute('aria-current', String(conv.id === state.activeId));
+      const title = document.createElement('span');
+      title.className = 'conv-title' + (conv.title === 'New chat' ? ' conv-new' : '');
+      title.textContent = conv.title;
+      btn.appendChild(title);
+
+      const del = document.createElement('span');
+      del.className = 'conv-del';
+      del.setAttribute('role', 'button');
+      del.setAttribute('tabindex', '0');
+      del.title = 'Delete conversation';
+      del.setAttribute('aria-label', 'Delete ' + conv.title);
+      del.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9.5 7V5h5v2M6.5 7l1 13h9l1-13"/></svg>';
+      const remove = (e) => {
+        e.stopPropagation();
+        state.conversations = state.conversations.filter(c => c.id !== conv.id);
+        if (!state.conversations.length) newConversation();
+        if (state.activeId === conv.id) state.activeId = state.conversations[0].id;
+        saveConversations();
+        renderSidebar();
+        renderThread();
+      };
+      del.addEventListener('click', remove);
+      del.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); remove(e); } });
+      btn.appendChild(del);
+
+      btn.addEventListener('click', () => {
+        state.activeId = conv.id;
+        saveConversations();
+        renderSidebar();
+        renderThread();
+        closePopovers();
+        if (isMobile()) setSidebar(false);
+      });
+      convList.appendChild(btn);
+    });
+  }
+
+  // ── OpenUI Lang Parser & Interactive Renderer ───────────────────────
+  window.submitOpenUIForm = function(e, formEl) {
+    e.preventDefault();
+    const action = formEl.dataset.action || 'Form submitted';
+    const data = {};
+    new FormData(formEl).forEach((val, key) => { data[key] = val; });
+    window.dispatchOpenUIAction('to-assistant', action, data);
+  };
+
+  window.dispatchOpenUIAction = function(type, message, formState) {
+    let text = message || 'Action';
+    if (formState && Object.keys(formState).length > 0) {
+      text += ' with form values: ' + JSON.stringify(formState);
+    }
+    input.value = text;
+    autosize();
+    syncSendState();
+    submit();
+  };
+
+  window.toggleOpenUIView = function(btn, view) {
+    const widget = btn.closest('.openui-widget');
+    if (!widget) return;
+    widget.dataset.view = view;
+    widget.querySelectorAll('.openui-tab-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === view);
+    });
+  };
+
+  function parseOpenUIArguments(rawArgs) {
+    try {
+      // Replace @ToAssistant("...") with JSON-compatible object
+      let sanitized = rawArgs.replace(/@ToAssistant\s*\(\s*(".*?"|'.*?')\s*\)/g, '{"__action": "to-assistant", "message": $1}');
+      // Quote unquoted variable names in arrays like [card1, card2]
+      sanitized = sanitized.replace(/\[\s*([a-zA-Z0-9_$]+(?:\s*,\s*[a-zA-Z0-9_$]+)*)\s*\]/g, (m, inside) => {
+        const quoted = inside.split(',').map(s => `"${s.trim()}"`).join(', ');
+        return `[${quoted}]`;
+      });
+      // Wrap in array brackets to parse via JSON
+      return JSON.parse(`[${sanitized}]`);
+    } catch (e) {
+      // Fallback simple string extraction
+      return [rawArgs];
+    }
+  }
+
+  function renderOpenUIElement(varName, defs, depth = 0) {
+    if (depth > 12) return '<div class="ms-callout" data-tone="warn">Max recursion depth exceeded</div>';
+    const def = defs[varName];
+    if (!def) return `<span class="openui-missing">[Unresolved ${escapeHtml(varName)}]</span>`;
+
+    const comp = def.comp;
+    const args = parseOpenUIArguments(def.rawArgs);
+
+    if (comp === 'Stack') {
+      const items = Array.isArray(args[0]) ? args[0] : [];
+      return '<div class="openui-stack">' + items.map(ch => renderOpenUIElement(ch, defs, depth + 1)).join('') + '</div>';
+    }
+
+    if (comp === 'Card') {
+      const title = args[0] || 'Card';
+      const items = Array.isArray(args[1]) ? args[1] : (typeof args[1] === 'string' ? [args[1]] : []);
+      return '<div class="openui-card">' +
+        '<div class="openui-card-title">' + escapeHtml(title) + '</div>' +
+        '<div class="openui-card-content">' + items.map(ch => renderOpenUIElement(ch, defs, depth + 1)).join('') + '</div>' +
+      '</div>';
+    }
+
+    if (comp === 'Table') {
+      const cols = Array.isArray(args[0]) ? args[0] : [];
+      const rows = Array.isArray(args[1]) ? args[1] : [];
+      const caption = args[2] || '';
+      let html = '<div class="openui-table-wrap"><table class="openui-table"><thead><tr>';
+      cols.forEach(c => { html += '<th>' + escapeHtml(String(c)) + '</th>'; });
+      html += '</tr></thead><tbody>';
+      rows.forEach(r => {
+        html += '<tr>';
+        const cells = Array.isArray(r) ? r : [r];
+        cells.forEach(c => { html += '<td>' + escapeHtml(String(c)) + '</td>'; });
+        html += '</tr>';
+      });
+      html += '</tbody></table>' + (caption ? '<div class="openui-table-caption">' + escapeHtml(caption) + '</div>' : '') + '</div>';
+      return html;
+    }
+
+    if (comp === 'Chart') {
+      const type = (args[0] || 'bar').toLowerCase();
+      const labels = Array.isArray(args[1]) ? args[1] : [];
+      const values = Array.isArray(args[2]) ? args[2] : [];
+      const title = args[3] || '';
+      const count = Math.min(labels.length, values.length);
+      if (count === 0) return '<div class="openui-chart">No chart data points</div>';
+
+      const maxVal = Math.max(...values.map(Number).filter(n => !isNaN(n)), 1);
+      const width = 560;
+      const height = 140;
+      const step = width / count;
+      const barW = Math.max(8, Math.min(48, step * 0.6));
+
+      let svgContent = '';
+      if (type === 'line' || type === 'area') {
+        const points = [];
+        for (let i = 0; i < count; i++) {
+          const v = Number(values[i]) || 0;
+          const x = i * step + step / 2;
+          const y = height - 28 - (v / maxVal) * (height - 48);
+          points.push({ x, y, v, label: labels[i] });
+        }
+        const ptsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+        if (type === 'area') {
+          svgContent += `<polygon points="${points[0].x},${height - 24} ${ptsStr} ${points[points.length-1].x},${height - 24}" fill="rgba(59,130,246,0.18)" />`;
+        }
+        svgContent += `<polyline points="${ptsStr}" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />`;
+        points.forEach(p => {
+          svgContent += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#3b82f6" />`;
+          svgContent += `<text x="${p.x}" y="${p.y - 7}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text-primary, #333)">${p.v}</text>`;
+          svgContent += `<text x="${p.x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="var(--text-tertiary, #888)">${escapeHtml(String(p.label))}</text>`;
+        });
+      } else {
+        // Bar chart
+        for (let i = 0; i < count; i++) {
+          const v = Number(values[i]) || 0;
+          const x = i * step + (step - barW) / 2;
+          const barH = Math.max(4, (v / maxVal) * (height - 48));
+          const y = height - 24 - barH;
+          svgContent += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="3" fill="#3b82f6" opacity="0.9" />`;
+          svgContent += `<text x="${x + barW / 2}" y="${y - 5}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text-primary, #333)">${v}</text>`;
+          svgContent += `<text x="${x + barW / 2}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="var(--text-tertiary, #888)">${escapeHtml(String(labels[i]))}</text>`;
+        }
+      }
+
+      return '<div class="openui-chart">' +
+        (title ? '<div class="openui-chart-title">' + escapeHtml(title) + '</div>' : '') +
+        `<svg viewBox="0 0 ${width} ${height}" style="width:100%;height:140px;display:block;" role="img" aria-label="${escapeHtml(title || 'Chart')}">${svgContent}</svg>` +
+      '</div>';
+    }
+
+    if (comp === 'Form') {
+      const fields = Array.isArray(args[0]) ? args[0] : [];
+      const actionObj = typeof args[1] === 'object' && args[1] ? args[1] : null;
+      const actionMsg = (actionObj && actionObj.message) ? actionObj.message : (typeof args[1] === 'string' ? args[1] : 'Submit');
+      const title = args[2] || '';
+      const submitLabel = args[3] || 'Submit';
+
+      let html = `<form class="openui-form" data-action="${escapeHtml(actionMsg)}" onsubmit="window.submitOpenUIForm(event, this)">`;
+      if (title) html += `<div class="openui-card-title">${escapeHtml(title)}</div>`;
+
+      fields.forEach(f => {
+        const name = f.name || 'field';
+        const label = f.label || name;
+        const rawType = String(f.type || 'text');
+        const type = ['text', 'email', 'number', 'password', 'tel', 'url', 'date', 'checkbox'].includes(rawType) ? rawType : 'text';
+        const ph = f.placeholder ? `placeholder="${escapeHtml(f.placeholder)}"` : '';
+        const req = f.required ? 'required' : '';
+        const fid = 'f_' + String(name).replace(/[^A-Za-z0-9_-]/g, '_');
+
+        if (type === 'checkbox') {
+          html += `<div class="openui-field openui-field-row"><input type="checkbox" id="${fid}" name="${escapeHtml(name)}" ${req}><label class="openui-label" for="${fid}">${escapeHtml(label)}</label></div>`;
+        } else {
+          html += `<div class="openui-field"><label class="openui-label" for="${fid}">${escapeHtml(label)}</label><input type="${type}" id="${fid}" name="${escapeHtml(name)}" class="openui-input" ${ph} ${req}></div>`;
+        }
+      });
+
+      html += `<button type="submit" class="openui-submit-btn">${escapeHtml(submitLabel)}</button></form>`;
+      return html;
+    }
+
+    if (comp === 'Steps') {
+      const items = Array.isArray(args[0]) ? args[0] : [];
+      let html = '<div class="openui-steps">';
+      items.forEach((it, idx) => {
+        const st = (it.status || 'pending').toLowerCase();
+        const icon = st === 'done' ? '✓' : (st === 'active' ? (idx + 1) : (idx + 1));
+        html += `<div class="openui-step" data-status="${st}">
+          <span class="openui-step-indicator">${icon}</span>
+          <div class="openui-step-content">
+            <div class="openui-step-title">${escapeHtml(it.title || '')}</div>
+            ${it.description ? `<div class="openui-step-desc">${escapeHtml(it.description)}</div>` : ''}
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    if (comp === 'Button') {
+      const label = args[0] || 'Action';
+      const actionObj = typeof args[1] === 'object' && args[1] ? args[1] : null;
+      const actionMsg = (actionObj && actionObj.message) ? actionObj.message : (typeof args[1] === 'string' ? args[1] : label);
+      return `<button type="button" class="openui-action-btn" onclick="window.dispatchOpenUIAction('to-assistant', '${escapeHtml(actionMsg)}')">${escapeHtml(label)}</button>`;
+    }
+
+    if (comp === 'Text') {
+      const text = args[0] || '';
+      return `<p style="margin:4px 0;font-size:13.5px;color:var(--text-primary);line-height:1.5;">${escapeHtml(text)}</p>`;
+    }
+
+    return `<div class="openui-generic"><b>${escapeHtml(comp)}</b></div>`;
+  }
+
+  function renderOpenUIWidget(code, isStreaming = false) {
+    const lines = code.split(/\r?\n/);
+    const defs = {};
+    let rootVar = null;
+
+    for (let rawLine of lines) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#') || line.startsWith('//')) continue;
+      const eqIdx = line.indexOf('=');
+      if (eqIdx > 0) {
+        const varName = line.slice(0, eqIdx).trim();
+        const callPart = line.slice(eqIdx + 1).trim();
+        const callMatch = callPart.match(/^([a-zA-Z0-9_$]+)\s*\(([\s\S]*)\)\s*$/);
+        if (callMatch) {
+          if (!rootVar) rootVar = varName;
+          defs[varName] = { comp: callMatch[1], rawArgs: callMatch[2] };
+        }
+      }
+    }
+
+    let previewHtml = '';
+    if (rootVar && defs[rootVar]) {
+      try {
+        previewHtml = renderOpenUIElement(rootVar, defs);
+      } catch (err) {
+        previewHtml = `<div class="ms-callout" data-tone="warn">Rendering OpenUI widget: ${escapeHtml(err.message)}</div>`;
+      }
+    } else {
+      previewHtml = '<div style="color:var(--text-tertiary);font-size:12px;padding:8px 0;">' + (isStreaming ? 'Streaming OpenUI component…' : 'OpenUI program parsed') + '</div>';
+    }
+
+    const cleanCode = escapeHtml(code);
+    return `<div class="openui-widget" data-view="preview">
+      <div class="openui-topbar">
+        <span class="openui-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+          OpenUI Interactive ${isStreaming ? '(streaming)' : ''}
+        </span>
+        <div class="openui-tabs">
+          <button type="button" class="openui-tab-btn active" data-tab="preview" onclick="window.toggleOpenUIView(this, 'preview')">Preview</button>
+          <button type="button" class="openui-tab-btn" data-tab="code" onclick="window.toggleOpenUIView(this, 'code')">OpenUI Lang</button>
+        </div>
+      </div>
+      <div class="openui-preview-pane">${previewHtml}</div>
+      <div class="openui-code-pane"><code>${cleanCode}</code></div>
+    </div>`;
+  }
+
+  /* ── Markdown Parser (XSS Sanitized, OpenUI & Streaming Aware) ───────────── */
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderMarkdown(rawText) {
+    if (!rawText) return '';
+    let text = rawText;
+
+    // 1. Thought / Reasoning blocks (handle closed or open/in-progress)
+    let thoughtHtml = '';
+    const thoughtClosedMatch = text.match(/<thought>([\s\S]*?)<\/thought>/i);
+    if (thoughtClosedMatch) {
+      thoughtHtml = '<details class="thought-box" open>' +
+        '<summary class="thought-summary">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>' +
+          '<span>Reasoning process</span>' +
+        '</summary>' +
+        '<div class="thought-body">' + escapeHtml(thoughtClosedMatch[1].trim()) + '</div>' +
+      '</details>';
+      text = text.replace(/<thought>[\s\S]*?<\/thought>/gi, '');
+    } else {
+      const thoughtOpenMatch = text.match(/<thought>([\s\S]*)$/i);
+      if (thoughtOpenMatch) {
+        thoughtHtml = '<details class="thought-box" open>' +
+          '<summary class="thought-summary">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>' +
+            '<span>Thinking…</span>' +
+          '</summary>' +
+          '<div class="thought-body">' + escapeHtml(thoughtOpenMatch[1].trim()) + '<span class="caret"></span></div>' +
+        '</details>';
+        text = text.replace(/<thought>[\s\S]*$/i, '');
+      }
+    }
+
+    // 2. Fenced code blocks (closed AND streaming in-progress) with OpenUI support
+    const codePlaceholders = [];
+    text = text.replace(/```([a-zA-Z0-9_-]*)\r?\n?([\s\S]*?)```/g, (match, lang, code) => {
+      const idx = codePlaceholders.length;
+      const lowerLang = (lang.trim() || '').toLowerCase();
+      if (lowerLang === 'openui-lang' || lowerLang === 'openui' || lowerLang === 'oui') {
+        codePlaceholders.push(renderOpenUIWidget(code.trim(), false));
+      } else {
+        const cleanLang = escapeHtml((lang.trim() || 'code').toUpperCase());
+        const cleanCode = escapeHtml(code.replace(/^\n+|\n+$/g, ''));
+        codePlaceholders.push(
+          '<pre><div class="code-topbar"><span class="code-lang-label">' + cleanLang + '</span><button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.closest(\'pre\').querySelector(\'code\').textContent);this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)">Copy</button></div><code>' +
+          cleanCode +
+          '</code></pre>'
+        );
+      }
+      return `\u0000CODE${idx}\u0000`;
+    });
+
+    // Match unclosed code block (streaming in progress)
+    text = text.replace(/```([a-zA-Z0-9_-]*)\r?\n?([\s\S]*)$/g, (match, lang, code) => {
+      const idx = codePlaceholders.length;
+      const lowerLang = (lang.trim() || '').toLowerCase();
+      if (lowerLang === 'openui-lang' || lowerLang === 'openui' || lowerLang === 'oui') {
+        codePlaceholders.push(renderOpenUIWidget(code, true));
+      } else {
+        const cleanLang = escapeHtml((lang.trim() || 'code').toUpperCase());
+        const cleanCode = escapeHtml(code);
+        codePlaceholders.push(
+          '<pre><div class="code-topbar"><span class="code-lang-label">' + cleanLang + ' (streaming)</span></div><code>' +
+          cleanCode +
+          '</code></pre>'
+        );
+      }
+      return `\u0000CODE${idx}\u0000`;
+    });
+
+    // 2b. Markdown Images: ![alt](url)
+    text = text.replace(/!\[([^\]]*)\]\(((?:https?:\/\/|data:image\/)[^\s)]+)\)/g, (match, alt, url) => {
+      const idx = codePlaceholders.length;
+      const cleanAlt = escapeHtml(alt || 'Generated Image');
+      const safeUrl = escapeHtml(url);
+      codePlaceholders.push(
+        '<div class="generated-image-card">' +
+          '<div class="generated-img-wrap">' +
+            '<img src="' + safeUrl + '" alt="' + cleanAlt + '" class="generated-img" loading="lazy" />' +
+            '<a href="' + safeUrl + '" download="gemini-generated-image.png" target="_blank" class="img-dl-btn" title="Download image">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download' +
+            '</a>' +
+          '</div>' +
+          '<div class="generated-img-footer">' +
+            '<span class="img-badge">Gemini 3.1 Flash Lite Image</span>' +
+            '<span class="img-caption">' + cleanAlt + '</span>' +
+          '</div>' +
+        '</div>'
+      );
+      return `\u0000CODE${idx}\u0000`;
+    });
+
+    // 3. Inline code
+    text = text.replace(/`([^`\n]+)`/g, (match, inline) => {
+      const idx = codePlaceholders.length;
+      codePlaceholders.push('<code>' + escapeHtml(inline) + '</code>');
+      return `\u0000CODE${idx}\u0000`;
+    });
+
+    // 4. Sanitize all remaining plain text (prevents any XSS execution)
+    text = escapeHtml(text);
+
+    // 5. Links: [label](url) with safe protocol check
+    text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (m, label, url) => {
+      return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+    });
+
+    // 6. Tables
+    text = text.replace(/((?:\|[^\n]+\|\r?\n?)+)/g, (match) => {
+      const rows = match.trim().split(/\r?\n/);
+      if (rows.length < 2) return match;
+      let html = '<table>';
+      rows.forEach((r, idx) => {
+        if (/^\|[-:\s|]+\|$/.test(r.trim())) return; // separator row
+        const cells = r.split('|').slice(1, -1).map(c => c.trim());
+        const tag = idx === 0 ? 'th' : 'td';
+        html += '<tr>' + cells.map(c => '<' + tag + '>' + c + '</' + tag + '>').join('') + '</tr>';
+      });
+      html += '</table>';
+      return html;
+    });
+
+    // 7. Headers
+    text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+    // 8. Blockquotes
+    text = text.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+
+    // 9. Bold and Italic
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    text = text.replace(/\*([^*]+)\*/g, '<i>$1</i>');
+
+    // 10. Unordered Lists
+    text = text.replace(/^\s*[-*]\s+(.*$)/gim, '<li>$1</li>');
+    text = text.replace(/(<li>[\s\S]*?<\/li>)/gim, '<ul>$1</ul>');
+    text = text.replace(/<\/ul>\s*<ul>/gim, '');
+
+    // 11. Paragraph breaks
+    text = text.replace(/\r?\n\r?\n+/g, '<br><br>');
+    text = text.replace(/\r?\n/g, '<br>');
+
+    // 12. Restore code blocks & inline code
+    codePlaceholders.forEach((block, idx) => {
+      text = text.replace(`\u0000CODE${idx}\u0000`, block);
+    });
+
+    return (thoughtHtml ? thoughtHtml + '<br>' : '') + text;
+  }
+
+  /* ── Thread Rendering ─────────────────────────────────────────────── */
+  const MONO = '<svg class="mark" width="104" height="91" viewBox="0 0 24 21" aria-label="Lively">' +
+    '<rect x="0" y="0" width="3" height="3"/><rect x="0" y="3" width="3" height="3"/>' +
+    '<rect x="0" y="6" width="3" height="3"/><rect x="0" y="9" width="3" height="3"/>' +
+    '<rect x="0" y="12" width="3" height="3"/><rect x="0" y="15" width="3" height="3"/>' +
+    '<rect x="0" y="18" width="3" height="3"/><rect x="3" y="18" width="3" height="3"/>' +
+    '<rect class="acc" x="6" y="18" width="3" height="3"/>' +
+    '<rect x="12" y="0" width="3" height="3"/><rect x="15" y="0" width="3" height="3"/>' +
+    '<rect x="18" y="0" width="3" height="3"/><rect x="12" y="3" width="3" height="3"/>' +
+    '<rect x="12" y="6" width="3" height="3"/><rect x="15" y="6" width="3" height="3"/>' +
+    '<rect x="12" y="9" width="3" height="3"/><rect x="12" y="12" width="3" height="3"/></svg>';
+
+  function renderThread() {
+    const conv = active();
+    threadInner.innerHTML = '';
+    if (!conv || conv.turns.length === 0) {
+      threadInner.classList.add('is-empty');
+      threadInner.appendChild(buildEmptyState());
+      return;
+    }
+    threadInner.classList.remove('is-empty');
+    conv.turns.forEach(t => threadInner.appendChild(buildTurn(t)));
+    scrollToEnd(false);
+  }
+
+  function buildEmptyState() {
+    const wrap = document.createElement('div');
+    wrap.className = 'empty';
+    wrap.innerHTML =
+      MONO +
+      '<h1>What can I help with?</h1>' +
+      '<p>Ask a question, write code, research an idea, or plan architecture.</p>' +
+      '<div class="suggestions m-stagger">' +
+        '<button class="chip">Compare the providers and give me a form to pick one.</button>' +
+        '<button class="chip">Show me inference speed charts for the models</button>' +
+        '<button class="chip">Plan a day in San Francisco</button>' +
+        '<button class="chip">Write a streaming SSE consumer in TypeScript</button>' +
+      '</div>';
+    wrap.querySelectorAll('.chip').forEach(c => {
+      c.addEventListener('click', () => { input.value = c.textContent; autosize(); syncSendState(); input.focus(); });
+    });
+    return wrap;
+  }
+
+  const ICONS = {
+    copy: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="3"/><path d="M15.5 6.2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h.2"/></svg>',
+    up:   '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 20.5V10L11.5 3l1.6.9a2 2 0 0 1 1 2.5L13 10h6a2 2 0 0 1 2 2.4l-1.2 6a2 2 0 0 1-2 1.6H7.5Z"/><rect x="3" y="10" width="4.5" height="10.5" rx="1.6"/></svg>',
+    down: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 3.5V14L12.5 21l-1.6-.9a2 2 0 0 1-1-2.5L11 14H5a2 2 0 0 1-2-2.4l1.2-6a2 2 0 0 1 2-1.6h10.3Z"/><rect x="16.5" y="3.5" width="4.5" height="10.5" rx="1.6"/></svg>'
+  };
+
+  function buildTurn(turn) {
+    const el = document.createElement('div');
+    el.className = 'turn from-' + turn.role;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble bubble-markdown';
+
+    if (turn.tool) {
+      const toolTag = document.createElement('div');
+      toolTag.className = 'tool-tag';
+      toolTag.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg> Tool: ' + turn.tool;
+      bubble.appendChild(toolTag);
+    }
+
+    if (turn.role === 'assistant') {
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'turn-content';
+      contentDiv.innerHTML = renderMarkdown(turn.text);
+      bubble.appendChild(contentDiv);
+    } else {
+      bubble.textContent = turn.text;
+    }
+    el.appendChild(bubble);
+
+    if (turn.role === 'assistant') {
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      const copy = document.createElement('button');
+      copy.className = 'act'; copy.title = 'Copy'; copy.setAttribute('aria-label', 'Copy message');
+      copy.innerHTML = ICONS.copy;
+      copy.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(turn.text); toast('Message copied'); } catch (e) {}
+      });
+
+      const up = document.createElement('button');
+      up.className = 'act'; up.title = 'Good response'; up.setAttribute('aria-label', 'Mark as good');
+      up.setAttribute('aria-pressed', String(!!turn.good));
+      up.innerHTML = ICONS.up;
+      up.addEventListener('click', () => { turn.good = !turn.good; up.setAttribute('aria-pressed', String(turn.good)); saveConversations(); });
+
+      const down = document.createElement('button');
+      down.className = 'act'; down.title = 'Bad response'; down.setAttribute('aria-label', 'Mark as bad');
+      down.setAttribute('aria-pressed', String(!!turn.bad));
+      down.innerHTML = ICONS.down;
+      down.addEventListener('click', () => { turn.bad = !turn.bad; down.setAttribute('aria-pressed', String(turn.bad)); saveConversations(); });
+
+      actions.append(copy, up, down);
+      el.appendChild(actions);
+
+      if (turn.model) {
+        const badge = document.createElement('div');
+        badge.className = 'provider-badge';
+        badge.innerHTML = '<span class="pdot" data-state="available"></span> ' + getModelLabel(turn.model);
+        el.appendChild(badge);
+      }
+    } else {
+      const meta = document.createElement('div');
+      meta.className = 'meta-line';
+      meta.textContent = turn.time || '';
+      el.appendChild(meta);
+    }
+    return el;
+  }
+
+  function scrollToEnd(smooth) {
+    if (!smooth) {
+      const prev = thread.style.scrollBehavior;
+      thread.style.scrollBehavior = 'auto';
+      thread.scrollTop = thread.scrollHeight;
+      thread.style.scrollBehavior = prev;
+      return;
+    }
+    thread.scrollTop = thread.scrollHeight;
+  }
+
+  /* ── Composer & Sending ────────────────────────────────────────────── */
+  function setFlow(on) { app.dataset.flow = on ? 'on' : 'off'; }
+
+  function setBusy(on) {
+    state.streaming = on;
+    setFlow(on);
+    sendBtn.dataset.state = on ? 'stop' : 'send';
+    sendBtn.setAttribute('aria-label', on ? 'Stop generating' : 'Send message');
+    syncSendState();
+  }
+
+  function autosize() {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 180) + 'px';
+  }
+
+  function syncSendState() {
+    const ready = !state.streaming && input.value.trim().length > 0;
+    sendBtn.dataset.ready = String(ready);
+    sendBtn.setAttribute('aria-disabled', String(!ready && !state.streaming));
+  }
+  input.addEventListener('input', () => { autosize(); syncSendState(); });
+
+  /* ── Real SSE Streaming Engine ─────────────────────────────────────── */
+  async function sendText(text) {
+    const conv = active();
+    if (!conv) return;
+
+    const currentTool = activeTool;
+    if (activeTool) {
+      setTool(null);
+    }
+
+    const timeNow = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const userTurn = {
+      role: 'user',
+      text: text,
+      time: timeNow,
+      tool: currentTool
+    };
+    conv.turns.push(userTurn);
+    if (conv.title === 'New chat') conv.title = titleFrom(text);
+
+    saveConversations();
+    renderSidebar();
+    renderThread();
+
+    // Create live assistant turn
+    const turnEl = document.createElement('div');
+    turnEl.className = 'turn from-assistant';
+    const bubbleEl = document.createElement('div');
+    bubbleEl.className = 'bubble bubble-markdown';
+    if (currentTool) {
+      const toolTag = document.createElement('div');
+      toolTag.className = 'tool-tag';
+      toolTag.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg> Tool: ' + currentTool;
+      bubbleEl.appendChild(toolTag);
+    }
+    const contentSpan = document.createElement('span');
+    const caretSpan = document.createElement('span');
+    caretSpan.className = 'caret';
+    bubbleEl.appendChild(contentSpan);
+    bubbleEl.appendChild(caretSpan);
+    turnEl.appendChild(bubbleEl);
+    threadInner.appendChild(turnEl);
+    scrollToEnd(false);
+
+    setBusy(true);
+
+    const controller = new AbortController();
+    state.abortController = controller;
+
+    // Prepare wire messages
+    const wireMessages = conv.turns.map(t => ({
+      role: t.role,
+      content: t.text
+    }));
+
+    let accumulatedText = '';
+    const currentModel = state.selectedModel;
+
+    try {
+      const keys = JSON.parse(localStorage.getItem('lively.provider_keys') || '{}');
+      const providerId = currentModel.startsWith('lively/') ? 'lively' : currentModel.split('/')[0];
+      const headers = { 'Content-Type': 'application/json' };
+      if (keys[providerId]) {
+        headers['Authorization'] = 'Bearer ' + keys[providerId];
+      }
+
+      const response = await fetch(`${BACKEND_BASE}/api/chat/completions`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          model: currentModel,
+          messages: wireMessages,
+          effort: EFFORTS[state.effort],
+          temperature: state.effort === 0 ? 0.2 : (state.effort === 2 ? 0.9 : 0.7),
+          tool: currentTool,
+          stream: true
+        }),
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        throw new Error('Server returned ' + response.status + ' ' + response.statusText);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith(':')) continue;
+          if (trimmed === 'data: [DONE]') break;
+
+          if (trimmed.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(trimmed.slice(6));
+              const delta = data.choices?.[0]?.delta?.content;
+              if (delta) {
+                accumulatedText += delta;
+                contentSpan.innerHTML = renderMarkdown(accumulatedText);
+                scrollToEnd(true);
+              }
+            } catch (e) {}
+          }
+        }
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        accumulatedText += ' *(generation stopped)*';
+      } else {
+        accumulatedText += '\n\n**Error:** ' + err.message;
+        toast('Connection error: ' + err.message);
+      }
+      contentSpan.innerHTML = renderMarkdown(accumulatedText);
+    } finally {
+      caretSpan.remove();
+      state.abortController = null;
+      setBusy(false);
+
+      if (accumulatedText) {
+        conv.turns.push({
+          role: 'assistant',
+          text: accumulatedText,
+          model: currentModel,
+          tool: currentTool,
+          time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        });
+        saveConversations();
+      }
+
+      renderThread();
+      flushPending();
+    }
+  }
+
+  function flushPending() {
+    if (!state.pending) return;
+    const p = state.pending;
+    state.pending = null;
+    sendText(p);
+  }
+
+  function stopGeneration() {
+    if (state.abortController) {
+      state.abortController.abort();
+    }
+  }
+
+  function submit() {
+    const val = input.value.trim();
+    if (!val) return;
+    if (state.streaming) {
+      state.pending = state.pending ? state.pending + ' ' + val : val;
+      input.value = ''; autosize(); syncSendState();
+      return;
+    }
+    input.value = ''; autosize(); syncSendState();
+    sendText(val);
+  }
+
+  sendBtn.addEventListener('click', () => {
+    if (state.streaming) { stopGeneration(); return; }
+    if (sendBtn.getAttribute('aria-disabled') === 'true') return;
+    submit();
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const sends = prefs.enterToSend ? !e.shiftKey : (e.metaKey || e.ctrlKey);
+    if (sends) { e.preventDefault(); submit(); }
+  });
+
+  /* ── Tools ────────────────────────────────────────────────────────── */
+  const TOOL_PROMPTS = {
+    'Create an image': 'Generate an image of ',
+    'Write or edit': 'Draft and refine a document about ',
+    'Search the web': 'Search the web for ',
+    'Run code': 'Write and execute a script to '
+  };
+  let activeTool = null;
+
+  function setTool(name) {
+    const bar = document.querySelector('.composer-bar');
+    const existing = document.querySelector('.toolchip');
+    if (existing) existing.remove();
+    activeTool = name || null;
+    if (!name) return;
+    const chip = document.createElement('div');
+    chip.className = 'toolchip';
+    chip.innerHTML = '<span>' + name + '</span>' +
+      '<span class="tc-x" role="button" tabindex="0" aria-label="Remove ' + name + '">' +
+      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></span>';
+    bar.parentNode.insertBefore(chip, bar);
+    const remove = (e) => { e.stopPropagation(); setTool(null); };
+    chip.querySelector('.tc-x').addEventListener('click', remove);
+    chip.querySelector('.tc-x').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') remove(e); });
+  }
+
+  let scrim = null;
+  function openPopover(pop, btn) {
+    closePopovers();
+    pop.dataset.open = 'true';
+    btn.setAttribute('aria-expanded', 'true');
+    scrim = document.createElement('div');
+    scrim.className = 'scrim';
+    scrim.addEventListener('click', closePopovers);
+    document.body.appendChild(scrim);
+  }
+  function closePopovers() {
+    [toolsPop, effortPop].forEach(p => { p.dataset.open = 'false'; });
+    toolsBtn.setAttribute('aria-expanded', 'false');
+    effortBtn.setAttribute('aria-expanded', 'false');
+    if (scrim) { scrim.remove(); scrim = null; }
+  }
+  toolsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toolsPop.dataset.open === 'true' ? closePopovers() : openPopover(toolsPop, toolsBtn);
+  });
+  effortBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    effortPop.dataset.open === 'true' ? closePopovers() : openPopover(effortPop, effortBtn);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePopovers(); closeModelModal(); } });
+
+  toolsPop.querySelectorAll('.tool').forEach(t => {
+    t.addEventListener('click', () => {
+      const name = t.textContent.trim();
+      setTool(name);
+      input.value = TOOL_PROMPTS[name] || '';
+      if (name.toLowerCase().includes('image')) {
+        state.selectedModel = 'google/gemini-3.1-flash-lite-image';
+        updateModelUI();
+        toast('Model: Gemini 3.1 Flash-Lite Image (Nano Banana 2 Lite)');
+      }
+      autosize(); syncSendState(); closePopovers(); input.focus();
+    });
+  });
+
+  /* ── Effort Slider ────────────────────────────────────────────────── */
+  const slider = $('effortSlider'), fill = $('effortFill'), knob = $('effortKnob');
+  const dots = $('effortDots'), levelLbl = $('effortLevel');
+  const chipLbl = $('effortChipLabel'), chipShort = $('effortChipShort');
+  const SHORT = { Low: 'Low', Medium: 'Med', High: 'High' };
+
+  function setEffort(v) {
+    state.effort = Math.max(0, Math.min(2, v));
+    const pct = state.effort / 2 * 100;
+    fill.style.width = pct + '%';
+    knob.style.left = pct + '%';
+    dots.querySelectorAll('i').forEach((d, i) => d.classList.toggle('on', i <= state.effort));
+    levelLbl.textContent = EFFORTS[state.effort];
+    chipLbl.textContent = EFFORTS[state.effort];
+    chipShort.textContent = SHORT[EFFORTS[state.effort]];
+    effortBtn.setAttribute('aria-label', 'Reasoning effort: ' + EFFORTS[state.effort]);
+    slider.setAttribute('aria-valuenow', String(state.effort));
+    slider.setAttribute('aria-valuetext', EFFORTS[state.effort]);
+  }
+  function effortFromEvent(e) {
+    const r = slider.getBoundingClientRect();
+    const ratio = (e.clientX - r.left) / r.width;
+    return Math.round(Math.max(0, Math.min(1, ratio)) * 2);
+  }
+  slider.addEventListener('pointerdown', (e) => { slider.setPointerCapture(e.pointerId); setEffort(effortFromEvent(e)); });
+  slider.addEventListener('pointermove', (e) => { if (e.buttons & 1) setEffort(effortFromEvent(e)); });
+  slider.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { setEffort(state.effort - 1); e.preventDefault(); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { setEffort(state.effort + 1); e.preventDefault(); }
+  });
+  $('effortReset').addEventListener('click', () => setEffort(1));
+  setEffort(1);
+
+  /* ── Dictation with SpeechRecognition ─────────────────────────────── */
+  let dictating = false, recognition = null;
+  function renderDictate(st) {
+    const bar = document.querySelector('.composer-bar');
+    let strip = document.querySelector('.dictate');
+    if (st === 'idle') { if (strip) strip.remove(); return; }
+    if (!strip) {
+      strip = document.createElement('div');
+      strip.className = 'dictate';
+      bar.parentNode.insertBefore(strip, bar);
+    }
+    strip.dataset.state = st;
+    strip.innerHTML =
+      '<span class="d-text">' + (st === 'listening'
+        ? '<b>Listening…</b> speak into microphone'
+        : '<b>Got it.</b> adding speech to prompt') + '</span>' +
+      '<span class="dictate-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
+      '<button class="act" id="dictateStop" title="Stop" aria-label="Stop dictation">' +
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="3.4"/></svg></button>';
+    strip.querySelector('#dictateStop').addEventListener('click', () => stopDictate());
+  }
+
+  function startDictate() {
+    if (dictating) return;
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    dictating = true;
+    voiceBtn.setAttribute('aria-pressed', 'true');
+    voiceBtn.setAttribute('aria-label', 'Stop dictation');
+    renderDictate('listening');
+
+    if (SpeechRec) {
+      try {
+        recognition = new SpeechRec();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.onresult = (event) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            transcript += event.results[i][0].transcript;
+          }
+          input.value = transcript;
+          autosize(); syncSendState();
+        };
+        recognition.onend = () => stopDictate();
+        recognition.onerror = () => stopDictate();
+        recognition.start();
+        return;
+      } catch (e) {}
+    }
+
+    // Graceful fallback simulation
+    setTimeout(() => {
+      if (!dictating) return;
+      renderDictate('done');
+      input.value = 'What are the main advantages of local-first AI architectures?';
+      autosize(); syncSendState();
+      setTimeout(() => stopDictate(), 1000);
+    }, 1800);
+  }
+
+  function stopDictate() {
+    dictating = false;
+    if (recognition) { try { recognition.stop(); } catch (e) {} recognition = null; }
+    voiceBtn.setAttribute('aria-pressed', 'false');
+    voiceBtn.setAttribute('aria-label', 'Dictate');
+    renderDictate('idle');
+  }
+  voiceBtn.addEventListener('click', () => { dictating ? stopDictate() : startDictate(); });
+
+  /* ── Sidebar & Layout ─────────────────────────────────────────────── */
+  const MOBILE_QUERY = '(max-width: 860px)';
+  function isMobile() { return window.matchMedia(MOBILE_QUERY).matches; }
+  function setSidebar(open) {
+    app.dataset.sidebar = open ? 'open' : 'closed';
+    try { localStorage.setItem('lively.sidebar', open ? 'open' : 'closed'); } catch (e) {}
+  }
+  function toggleSidebar() {
+    const isCurrentlyOpen = app.dataset.sidebar === 'open';
+    setSidebar(!isCurrentlyOpen);
+  }
+  $('sideOpenBtn').addEventListener('click', toggleSidebar);
+  const sideCollapseBtn = $('sideCollapseBtn');
+  if (sideCollapseBtn) sideCollapseBtn.addEventListener('click', () => setSidebar(false));
+  const sideScrim = $('sideScrim');
+  if (sideScrim) sideScrim.addEventListener('click', () => setSidebar(false));
+
+  // Desktop keyboard shortcut: Ctrl+B or Cmd+B to toggle sidebar
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Restore saved desktop sidebar preference
+  const savedSidebar = localStorage.getItem('lively.sidebar');
+  if (savedSidebar === 'closed') {
+    setSidebar(false);
+  } else if (!isMobile()) {
+    setSidebar(true);
+  }
+
+  const startNewChat = () => {
+    newConversation();
+    renderSidebar();
+    renderThread();
+    if (isMobile()) setSidebar(false);
+    input.focus();
+  };
+  $('newChatBtn').addEventListener('click', startNewChat);
+  $('newThreadTopBtn').addEventListener('click', startNewChat);
+  $('brandBtn').addEventListener('click', startNewChat);
+
+  /* ── Boot ─────────────────────────────────────────────────────────── */
+  const prefs = JSON.parse(localStorage.getItem('lively.prefs') || '{}');
+  window.LivelySettings.init({
+    accountBtn: $('acctBtn'), accountMenu: $('acctMenu'),
+    settingsItem: $('miSettings'), shortcutsItem: $('miShortcuts'), resetItem: $('miReset'),
+    closePopovers: closePopovers,
+    onPrefs: (p) => {
+      const chip = document.querySelector('.chip-wrap');
+      if (chip) chip.hidden = !p.showEffort;
+    },
+    onClearAll: () => {
+      state.conversations = [];
+      newConversation();
+      renderSidebar();
+      renderThread();
+      toast('All conversations cleared');
+    },
+    onReset: () => {
+      state.conversations = [];
+      newConversation();
+      renderSidebar();
+      renderThread();
+      toast('Demo reset to initial state');
+    }
+  });
+
+  loadSaved();
+  updateModelUI();
+  fetchLiveModels();
+  refreshProviderStatus();
+  window.addEventListener('lively:keys-updated', () => { refreshProviderStatus(); fetchLiveModels(); });
+  window.addEventListener('storage', () => { refreshProviderStatus(); fetchLiveModels(); });
+  renderSidebar();
+  renderThread();
+  syncSendState();
+  if (isMobile()) setSidebar(false);
+  input.focus();
+})();
+</script>
+</body>
+</html>

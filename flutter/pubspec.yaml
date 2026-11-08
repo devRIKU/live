@@ -1,0 +1,75 @@
+name: lively_openall
+description: Lively OpenAll - local-first desktop assistant (Flutter/Windows).
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+  flutter: '>=3.22.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Windows 11 Fluent/WinUI aesthetics
+  fluent_ui: ^4.9.0
+  url_launcher: ^6.2.0
+  file_selector: ^1.0.3
+  # State management
+  flutter_riverpod: ^2.5.0
+  riverpod_annotation: ^2.3.0
+  # Routing
+  go_router: ^14.0.0
+  # Persistence (SQLite, desktop)
+  sqflite_common_ffi: ^2.3.0
+  path_provider: ^2.1.0
+  path: ^1.9.0
+  shared_preferences: ^2.2.0
+  # Networking / streaming
+  http: ^1.2.0
+  dio: ^5.4.0
+  # Markdown + sanitize
+  flutter_markdown: ^0.7.0
+  # Icons
+  fluentui_system_icons: ^1.1.0
+  # Terminal
+  xterm: ^3.4.0
+  # Pseudo-terminal for interactive programs (ConPTY on Windows)
+  flutter_pty: ^0.4.2
+  # Charts
+  fl_chart: ^0.68.0
+  # WebView2 for artifact preview (Windows; webview_flutter has no Windows support)
+  webview_windows: ^0.4.0
+  # Provider API keys (OS-protected storage)
+  flutter_secure_storage: ^9.2.2
+  # Dictation. Windows support is beta upstream; 7.5+ needs a newer Flutter.
+  speech_to_text: '>=7.4.0 <7.5.0'
+  # JSON
+  json_annotation: ^4.9.0
+  # UUID
+  uuid: ^4.4.0
+  # Logging
+  logging: ^1.2.0
+  # Window management
+  window_manager: ^0.3.9
+  # FFI for native hooks
+  ffi: ^2.1.0
+  # Animations
+  flutter_animate: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.0
+  riverpod_generator: ^2.4.0
+  json_serializable: ^6.8.0
+  mocktail: ^1.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/skills/test-skill/

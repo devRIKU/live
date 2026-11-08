@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+openall/node_modules/
+
+# Virtualenv & Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Environment files / API keys
+.env
+.env.*
+!.env.example
+*.local
+
+# Build artifacts
+dist/
+openall/dist/
+target/
+build/
+pub-cache/
+
+# Flutter / Dart
+flutter/.dart_tool/
+flutter/.flutter-plugins
+flutter/.flutter-plugins-dependencies
+flutter/.packages
+flutter/build/
+
+# Logs & temp
+*.log
+.impeccable/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

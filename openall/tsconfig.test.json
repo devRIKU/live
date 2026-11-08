@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
+    "noUnusedLocals": false
+  }
+}

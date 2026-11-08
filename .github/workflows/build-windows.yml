@@ -1,0 +1,63 @@
+name: Build Flutter Windows App
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Verify Flutter & Environment
+        run: |
+          flutter doctor -v
+
+      - name: Scaffold Windows Runner (if missing)
+        working-directory: flutter
+        run: |
+          if (-not (Test-Path "windows\CMakeLists.txt")) {
+            Write-Host "Scaffolding Windows runner..."
+            flutter create --platforms=windows .
+          }
+
+      - name: Install Flutter Dependencies
+        working-directory: flutter
+        run: flutter pub get
+
+      - name: Analyze Code
+        working-directory: flutter
+        run: flutter analyze || true
+
+      - name: Build Windows Release
+        working-directory: flutter
+        run: flutter build windows --release
+
+      - name: Package Release
+        run: |
+          $releasePath = "flutter/build/windows/x64/runner/Release"
+          if (Test-Path $releasePath) {
+            Compress-Archive -Path "$releasePath\*" -DestinationPath "lively-windows-x64.zip" -Force
+          } else {
+            Get-ChildItem -Path "flutter/build/windows" -Recurse -Filter "*.exe"
+            Compress-Archive -Path "flutter/build/windows\*" -DestinationPath "lively-windows-x64.zip" -Force
+          }
+
+      - name: Upload Windows Executable Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lively-windows-x64
+          path: lively-windows-x64.zip
+          retention-days: 14

@@ -1,0 +1,274 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIVELY DESIGN SYSTEM · motion.css
+   ---------------------------------------------------------------------------
+   Motion primitives and the reduced-motion policy.
+
+   THE THESIS
+     Motion in this product has exactly four jobs. Anything that does not do
+     one of them is animation debt and should be deleted.
+
+       1. FEEDBACK    — confirm an action was heard.
+       2. CONTINUITY  — explain where a thing went or came from.
+       3. STATE       — make a change of state legible.
+       4. FOCUS       — point at the one thing that matters right now.
+
+   The focal moment for the OpenAll surface is the APPROVAL GATE: a tool call
+   arrives mid-stream, the stream pauses, and the approval panel materialises
+   with its arguments revealing line by line. You are being asked to authorise
+   something that will run outside the chat — the motion makes you read it.
+   Every other animation in this file is supporting motion for that idea.
+
+   RULES
+     · transform and opacity are the backbone; clip-path, mask, blur and
+       shadow are used when the transition is about depth or occlusion.
+     · Exit is faster than entrance. Entrances use expo-out.
+     · Never bounce. The overshoot in --ease-spring is ~0.08, invisible as a
+       "bounce" but enough to make a state change feel physical.
+     · Nothing loops unless it carries meaning (a streaming caret, a live
+       status dot). A decorative loop is noise.
+     · Nothing animates layout-driving properties. Progress bars scale.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRIMITIVES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Entrance — fade + rise. The default for content arriving. */
+@keyframes m-fade-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Entrance — scale + fade. For things that appear from nothing: popovers,
+   menus, badges. Never starts from scale(0) — nothing in the real world
+   appears from nothing. */
+@keyframes m-scale-in {
+  from { opacity: 0; transform: scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Entrance — directional. For spatial continuity: a panel arriving from the
+   edge it lives on. */
+@keyframes m-slide-in-right {
+  from { opacity: .6; transform: translateX(24px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes m-slide-in-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes m-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Crossfade — swapping one thing for another in the same place. */
+@keyframes m-crossfade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Occlusion reveal — the approval panel's argument list revealing in order.
+   clip-path keeps this off the layout path. */
+@keyframes m-reveal-line {
+  from { opacity: 0; transform: translateY(4px); clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
+}
+
+/* Attention — a one-shot pulse that expands a ring and fades. */
+/* removed: m-pulse-ring had no consumer */
+
+/* Progress — a bar filling. Uses scaleX so it never triggers layout. */
+/* Progress bars scale on X. They never animate their width. */
+
+/* Shimmer — a highlight travelling across a surface. For skeletons and the
+   streaming caret. */
+@keyframes m-shimmer {
+  from { background-position: -180% 0; }
+  to   { background-position: 280% 0; }
+}
+
+/* Blink — the streaming caret. Steps, not smooth: a smooth blink looks
+   like a flicker. */
+@keyframes m-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: .2; }
+}
+
+/* Breathing — a live status dot. The only ambient loop that earns itself:
+   it says "this is running", nothing else. */
+@keyframes m-breathe {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.14); opacity: .72; }
+}
+
+/* Bars — a voice level meter. */
+@keyframes m-bar {
+  0%, 100% { height: 4px; }
+  50%      { height: 15px; }
+}
+
+/* Spin — progress. */
+/* removed: m-spin had no consumer */
+
+/* Nudge — a one-shot attention tap on a newly arrived element. */
+@keyframes m-nudge {
+  0%   { opacity: 0; transform: translateY(-6px); }
+  60%  { opacity: 1; transform: translateY(1px); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.m-fade-rise    { animation: m-fade-rise var(--d-entrance) var(--ease-out-expo) both; }
+.m-scale-in     { animation: m-scale-in var(--d-slow) var(--ease-out-expo) both; }
+.m-crossfade    { animation: m-crossfade var(--d-slow) var(--ease-out) both; }
+.m-slide-right  { animation: m-slide-in-right var(--d-slower) var(--ease-out-expo) both; }
+.m-slide-down   { animation: m-slide-in-down var(--d-base) var(--ease-out-quint) both; }
+.m-slide-up     { animation: m-slide-up var(--d-base) var(--ease-out-quint) both; }
+.m-nudge        { animation: m-nudge var(--d-slower) var(--ease-out-expo) both; }
+.m-reveal-line  { animation: m-reveal-line var(--d-slow) var(--ease-out-quint) both; }
+
+/* Sibling stagger — only for a list appearing as a list.
+   The cap keeps the last item from arriving late. */
+.m-stagger > * { animation: m-fade-rise var(--d-slower) var(--ease-out-expo) both; }
+.m-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.m-stagger > *:nth-child(2) { animation-delay: var(--stagger-step); }
+.m-stagger > *:nth-child(3) { animation-delay: calc(var(--stagger-step) * 2); }
+.m-stagger > *:nth-child(4) { animation-delay: calc(var(--stagger-step) * 3); }
+.m-stagger > *:nth-child(n+5) { animation-delay: var(--stagger-cap); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STATE PATTERNS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* A press is acknowledged by shrinking, not by a colour flash. */
+.m-pressable {
+  transition: transform var(--d-fast) var(--ease-out);
+}
+.m-pressable:active { transform: scale(.96); }
+
+/* A live status dot — the only ambient loop with meaning. */
+.m-live-dot {
+  animation: m-breathe 2.6s var(--ease-in-out) infinite;
+}
+
+/* A progress bar that fills without touching layout. */
+.m-progress {
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  transition: transform var(--d-slower) var(--ease-ios);
+}
+.m-progress[data-value="1"] { transform: scaleX(1); }
+
+/* The streaming caret — a shimmer travelling a 3px bar, in the flow spectrum. */
+.m-caret {
+  background-image: var(--flow-spectrum);
+  background-size: 280% 100%;
+  animation: m-blink 1.05s steps(1, end) infinite, m-shimmer 1.6s linear infinite;
+}
+
+/* A skeleton that breathes until content replaces it. */
+.m-skeleton {
+  background-image: linear-gradient(90deg,
+    var(--fill-1) 0%, var(--fill-2) 40%, var(--fill-1) 80%);
+  background-size: 220% 100%;
+  animation: m-shimmer 1.4s linear infinite;
+}
+
+/* A panel arriving from its own edge — continuity, not decoration.
+   Use .m-slide-right; this was a duplicate alias. */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION — the policy
+   ---------------------------------------------------------------------------
+   Reduced motion does not mean "no animation". It means: keep the state
+   change, drop the travel.
+
+     · opacity transitions stay — they carry comprehension
+     · transform, clip-path and filter motion goes
+     · the streaming caret stays VISIBLE and solid (it carries information)
+     · loops stop
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Content must be visible by default, so a failed script never hides it. */
+  .m-fade-rise, .m-scale-in, .m-crossfade, .m-slide-right,
+  .m-slide-down, .m-slide-up, .m-nudge, .m-reveal-line,
+  .m-stagger > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+
+  /* The caret is information, not motion. Solid and visible. */
+  .m-caret {
+    animation: none !important;
+    opacity: 1 !important;
+    background-image: var(--flow-spectrum) !important;
+    background-size: 100% 100% !important;
+  }
+
+  /* Live dots become static and legible rather than disappearing. */
+  .m-live-dot { animation: none !important; opacity: 1 !important; }
+
+  /* A skeleton becomes a plain block, not a frozen shimmer. */
+  .m-skeleton { animation: none !important; background-image: none !important; background-color: var(--fill-1) !important; }
+
+  /* Progress jumps to its value instead of sweeping. */
+  .m-progress { transition: none !important; transform: scaleX(1) !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION — chosen by the user
+   ---------------------------------------------------------------------------
+   The media query above covers the OS preference. This block covers an
+   explicit choice made in Settings. It carries the same policy: keep the
+   state change, drop the travel.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root[data-reduce-motion="true"] *,
+:root[data-reduce-motion="true"] *::before,
+:root[data-reduce-motion="true"] *::after {
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+  scroll-behavior: auto !important;
+}
+:root[data-reduce-motion="true"] .m-fade-rise,
+:root[data-reduce-motion="true"] .m-scale-in,
+:root[data-reduce-motion="true"] .m-crossfade,
+:root[data-reduce-motion="true"] .m-slide-right,
+:root[data-reduce-motion="true"] .m-slide-down,
+:root[data-reduce-motion="true"] .m-slide-up,
+:root[data-reduce-motion="true"] .m-nudge,
+:root[data-reduce-motion="true"] .m-reveal-line,
+:root[data-reduce-motion="true"] .m-stagger > *,
+:root[data-reduce-motion="true"] .turn {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+:root[data-reduce-motion="true"] .m-caret {
+  animation: none !important;
+  opacity: 1 !important;
+  background-image: var(--flow-spectrum) !important;
+  background-size: 100% 100% !important;
+}
+:root[data-reduce-motion="true"] .m-live-dot { animation: none !important; opacity: 1 !important; }
+:root[data-reduce-motion="true"] .m-skeleton {
+  animation: none !important;
+  background-image: none !important;
+  background-color: var(--fill-1) !important;
+}
+:root[data-reduce-motion="true"] .m-progress { transition: none !important; transform: scaleX(1) !important; }
+
