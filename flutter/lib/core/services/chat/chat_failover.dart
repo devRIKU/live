@@ -323,6 +323,29 @@ Future<FailoverResult<T>> failover<T>(
     }
   }
 
+  // All attempts exhausted — if cross-provider failover is enabled,
+  // do a safe fallback to the local demo provider if it was not already tried.
+  if (options.allowCrossProviderFailover) {
+    final demoProvider = registry.providers.where((p) => p.id == 'demo').firstOrNull;
+    if (demoProvider != null && !candidates.take(attemptIndex).any((c) => c.id == 'demo')) {
+      try {
+        final data = await _callWithTimeout(demoProvider, caller);
+        return FailoverResult(
+          data: data,
+          meta: FailoverMeta(
+            answeredBy: demoProvider,
+            usedFallback: true,
+            fallbackReason: 'Primary provider "${options.primary.name}" failed '
+                '(${redactSecrets(lastError ?? '')}). Fell back to "${demoProvider.name}".',
+            authError: lastErrorAuth,
+          ),
+        );
+      } catch (_) {
+        // Fallback failed, continue to throw original error.
+      }
+    }
+  }
+
   // All attempts exhausted — rethrow the last error.
   if (lastError is Exception) throw lastError;
   throw StateError(redactSecrets(lastError ?? 'failover: no candidates'));

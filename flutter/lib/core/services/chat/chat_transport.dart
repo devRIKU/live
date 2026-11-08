@@ -221,16 +221,144 @@ Uri resolveEndpoint(LlmProvider provider, String path, {String? model}) {
   return Uri.parse(full);
 }
 
+/// Stream an offline demonstration completion with real generative UI.
+Future<StreamResult> _streamOfflineDemo(StreamOptions opts) async {
+  opts.onProgress?.call();
+
+  final lastUser = opts.messages.lastWhere(
+    (m) => m.role == 'user',
+    orElse: () => const ChatMessage(role: 'user', content: ChatContent.string('')),
+  );
+  final userText = (lastUser.content.text ?? '').trim();
+  final lower = userText.toLowerCase();
+
+  String fullResponse;
+  if (lower.contains('compare') || lower.contains('provider') || lower.contains('form')) {
+    fullResponse = '''Here is a detailed comparison of all supported AI providers in Lively OpenAll, along with an interactive form to configure your preferred engine:
+
+```openui-lang
+root = Stack([providersCard, formCard])
+providersCard = Card("Supported AI Providers", [providerTable], "A breakdown of engines supported in Lively OpenAll.")
+providerTable = Table(["Provider", "Default Model", "Context Limit", "Specialty"], [["OpenRouter", "Claude Sonnet 4 / GPT-4.1", "200k tokens", "Multi-model routing & reasoning"], ["Google AI", "Gemini 2.5 Pro", "1M tokens", "Massive context & multimodal"], ["Groq", "Llama 3.3 70B", "131k tokens", "Near-instant streaming inference"], ["Mistral", "Mistral Large", "128k tokens", "European sovereignty & coding"], ["Ollama", "Llama 3 (Local)", "Device RAM", "100% private on-device LLM"]])
+formCard = Card("Engine Selector", [formText, pickForm])
+formText = Text("Choose a provider configuration to test or connect:")
+pickForm = Form([{"name": "provider", "label": "Selected Provider", "type": "select", "options": ["OpenRouter", "Google AI Studio", "Groq", "Mistral", "Ollama (Local)"]}, {"name": "offline", "label": "Keep Local Demo Enabled", "type": "checkbox"}], @ToAssistant("I have saved my provider preferences."), "Provider Setup", "Confirm Engine")
+```
+
+💡 **Tip**: To use live cloud providers (Claude, GPT-4, Gemini 2.5), open **Settings** (⚙) in the bottom-left sidebar to enter your API keys.''';
+  } else if (lower.contains('san francisco') || lower.contains('plan') || lower.contains('trip') || lower.contains('travel') || lower.contains('day')) {
+    fullResponse = '''Here is a curated 1-day itinerary for experiencing San Francisco from morning coffee to sunset:
+
+```openui-lang
+root = Stack([itineraryCard, budgetCard])
+itineraryCard = Card("San Francisco 1-Day Itinerary", [sfSteps], "A curated tour through the iconic spots of San Francisco.")
+sfSteps = Steps([{"title": "09:00 AM — Ferry Building & Embarcadero", "description": "Grab blue bottle coffee, artisan sourdough bread, and walk the waterfront."}, {"title": "11:30 AM — Historic Cable Car to Chinatown", "description": "Ride the Powell-Hyde cable car, stroll Grant Avenue, and enjoy fresh dim sum."}, {"title": "02:00 PM — Presidio & Golden Gate Vista", "description": "Visit Crissy Field for postcard-perfect views of the Golden Gate Bridge."}, {"title": "05:30 PM — Mission District & Sunset at Dolores", "description": "Pick up a famous Mission burrito and watch the city skyline illuminate at sunset."}])
+budgetCard = Card("Trip Cost Estimate", [budgetTable, saveBtn])
+budgetTable = Table(["Category", "Estimated Cost", "Recommendation"], [["Transit & Cable Car", "\$13.00", "Muni 1-Day Passport"], ["Food & Drinks", "\$45.00", "Local bakeries, dim sum & burritos"], ["Sightseeing", "Free", "Parks, bridge vista & viewpoints"]])
+saveBtn = Button("Save Itinerary to Notes", @ToAssistant("Save the San Francisco day plan to my notes."), "primary")
+```
+
+Enjoy your day exploring the City by the Bay! Feel free to ask if you want custom restaurant or museum recommendations.''';
+  } else if (lower.contains('canvas') || lower.contains('release') || lower.contains('draft')) {
+    fullResponse = '''## Lively OpenAll — Canvas Pane Release Notes
+
+### 🚀 What's New: The Interactive Canvas Surface
+We are thrilled to introduce the **Canvas Pane** in Lively OpenAll — a dedicated workspace that docks right beside your conversation column.
+
+#### ✨ Key Highlights
+- **Side-by-Side Collaboration**: Generate, review, and edit documents, code, and UI mockups beside the chat.
+- **Generative UI Rendering**: OpenUI Lang programs render live as interactive widgets.
+- **Local-First & Fast**: Keeps your context intact with minimal latency and full offline capability.
+
+```openui-lang
+root = Stack([releaseCard, actionsCard])
+releaseCard = Card("Canvas Workspace Released", [releaseText, featTable], "Introducing persistent side-by-side artifact editing.")
+releaseText = Text("The Canvas Pane brings a 420px interactive document surface alongside your 720px conversation column, enabling document drafting, generative UI components, and code previews without losing chat flow.")
+featTable = Table(["Capability", "Status", "Details"], [["Split-Pane View", "Active", "Docked side-by-side with chat"], ["Artifact Detection", "Active", "Automatically isolates documents & designs"], ["Generative UI", "Active", "Dynamic OpenUI Lang interactive cards & forms"]])
+actionsCard = Card("Next Steps", [exploreBtn])
+exploreBtn = Button("Explore Interactive Components", @ToAssistant("Show me all interactive UI components available in Lively OpenAll."), "secondary")
+```''';
+  } else if (lower.contains('chart') || lower.contains('graph') || lower.contains('stat') || lower.contains('metric')) {
+    fullResponse = '''Here is an analysis and visualization of performance metrics:
+
+```openui-lang
+root = Stack([chartCard, statsCard])
+chartCard = Card("Quarterly Growth Metrics", [growthChart], "Active user growth across Q1 to Q4.")
+growthChart = Chart("line", ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], [120, 190, 310, 520, 840, 1260], "Monthly Active Users (Thousands)")
+statsCard = Card("Performance Summary", [metricsTable])
+metricsTable = Table(["Metric", "Current Value", "Change"], [["Monthly Active Users", "1.26M", "+18.4%"], ["Average Latency", "32ms", "-14.2%"], ["User Retention", "91.2%", "+3.8%"]])
+```''';
+  } else {
+    fullResponse = '''Hello! I am **Lively Assistant**, your local-first AI companion.
+
+I can answer questions, analyze data, write clean code, and generate live interactive interfaces using OpenUI Lang.
+
+```openui-lang
+root = Stack([welcomeCard, quickCard])
+welcomeCard = Card("Lively OpenAll AI Assistant", [infoText, capTable])
+infoText = Text("Welcome to Lively OpenAll! I can write prose, analyze data, plan projects, run code, and build live interactive user interfaces.")
+capTable = Table(["Capability", "Status", "Description"], [["Generative UI", "Active", "Interactive buttons, tables, and forms"], ["Local First", "Active", "Runs completely on-device without cloud dependency"], ["Cloud LLMs", "Ready", "Connect Claude, GPT-4, and Gemini with API keys in Settings"]])
+quickCard = Card("Quick Actions", [exploreBtn])
+exploreBtn = Button("Compare All LLM Providers", @ToAssistant("Compare the providers and give me a form to pick one."), "primary")
+```
+
+💡 **Pro Tip**: To connect real cloud models like Claude 3.5 Sonnet, GPT-4o, or Gemini 2.5 Pro, click the **Settings** (⚙) icon in the bottom-left sidebar to add your API keys.''';
+  }
+
+  // Stream in realistic chunks
+  final words = fullResponse.split(' ');
+  final buffer = StringBuffer();
+  for (var i = 0; i < words.length; i++) {
+    if (opts.signal.isCancelled) {
+      throw RequestAborted();
+    }
+    final word = (i == 0 ? '' : ' ') + words[i];
+    buffer.write(word);
+    opts.onToken(word);
+    opts.onProgress?.call();
+    await Future.delayed(const Duration(milliseconds: 14));
+  }
+
+  final promptTokens = (userText.length ~/ 4) + 12;
+  final completionTokens = (fullResponse.length ~/ 4) + 1;
+  final usage = StreamUsage(
+    promptTokens: promptTokens,
+    completionTokens: completionTokens,
+    totalTokens: promptTokens + completionTokens,
+  );
+  opts.onUsage?.call(usage);
+
+  return StreamResult(
+    text: fullResponse,
+    usage: usage,
+    toolCalls: const [],
+    finishReason: 'stop',
+  );
+}
+
 /// Stream a completion directly from the provider (or local backend).
 Future<StreamResult> streamViaProvider(StreamOptions opts) async {
   final provider = opts.provider;
+
+  if (provider.id == 'demo' || provider.baseUrl.startsWith('offline://')) {
+    return _streamOfflineDemo(opts);
+  }
+
+  // Pre-check for required API keys. If missing, fail fast with a helpful message.
+  final key = providerKeyResolver(provider.envKey);
+  if (provider.envKey.isNotEmpty && (key == null || key.trim().isEmpty)) {
+    throw HttpProviderError(
+      401,
+      'No API key configured for ${provider.name}. Add your API key in Settings (⚙) > Providers or switch to Lively Demo (Offline).',
+      provider,
+    );
+  }
 
   final request = http.Request(
     'POST',
     resolveEndpoint(provider, '/chat/completions', model: opts.model),
   );
   request.headers['Content-Type'] = 'application/json';
-  final key = providerKeyResolver(provider.envKey);
   if (key != null && key.isNotEmpty) {
     request.headers['Authorization'] = 'Bearer $key';
   }
@@ -244,7 +372,13 @@ Future<StreamResult> streamViaProvider(StreamOptions opts) async {
 
   opts.onProgress?.call();
   final client = http.Client();
-  final response = await client.send(request);
+  http.StreamedResponse response;
+  try {
+    response = await client.send(request);
+  } catch (e) {
+    client.close();
+    throw TransportError('Failed to connect to ${provider.name} (${provider.baseUrl}): $e');
+  }
 
   if (response.statusCode < 200 || response.statusCode >= 300) {
     final body = await response.stream.bytesToString().catchError((_) => '');

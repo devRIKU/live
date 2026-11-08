@@ -52,16 +52,16 @@ Future<void> main() async {
     return env[envKey];
   };
 
-  // Desktop window bootstrap (frameless Fluent chrome).
+  // Desktop window bootstrap.
   await windowManager.ensureInitialized();
   const options = WindowOptions(
     size: Size(1280, 820),
     minimumSize: Size(960, 640),
     center: true,
-    backgroundColor: Colors.transparent,
+    title: 'Lively OpenAll',
     skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-    windowButtonVisibility: false,
+    titleBarStyle: TitleBarStyle.normal,
+    windowButtonVisibility: true,
   );
   await windowManager.waitUntilReadyToShow(options, () async {
     await windowManager.show();

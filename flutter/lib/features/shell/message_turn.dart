@@ -285,7 +285,126 @@ class _AssistantBody extends StatelessWidget {
       );
     }
     if (content.isEmpty) return const SizedBox.shrink();
+    if (!streaming && content.startsWith('⚠')) {
+      return _ErrorNoticeCard(
+        brightness: b,
+        content: content,
+        onAction: onAction,
+      );
+    }
     return OpenUIMessage(content: content, onAction: onAction);
+  }
+}
+
+class _ErrorNoticeCard extends StatelessWidget {
+  final Brightness brightness;
+  final String content;
+  final void Function(OpenUIActionEvent event)? onAction;
+
+  const _ErrorNoticeCard({
+    required this.brightness,
+    required this.content,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final b = brightness;
+    final clean = content.replaceFirst(RegExp(r'^⚠\s*'), '');
+    final isAuth = clean.contains('401') ||
+        clean.contains('API key') ||
+        clean.contains('Unauthorized') ||
+        clean.contains('forbidden');
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: Lively.columnWidth),
+      padding: const EdgeInsets.all(Lively.s4),
+      decoration: BoxDecoration(
+        color: b == Brightness.dark
+            ? const Color(0xFF2E1A17)
+            : const Color(0xFFFFF2F0),
+        borderRadius: BorderRadius.circular(Lively.rLg),
+        border: Border.all(
+          color: b == Brightness.dark
+              ? const Color(0xFF6B2A20)
+              : const Color(0xFFFFCCC7),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                f.FluentIcons.warning,
+                size: 16,
+                color: Lively.appleRed,
+              ),
+              const SizedBox(width: Lively.s2),
+              Text(
+                isAuth ? 'API Key Configuration Required' : 'Provider Request Notice',
+                style: TextStyle(
+                  color: Lively.textPrimary(b),
+                  fontSize: Lively.tCallout,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: Lively.s2),
+          Text(
+            clean,
+            style: TextStyle(
+              color: Lively.textSecondary(b),
+              fontSize: Lively.tFootnote,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: Lively.s3),
+          Wrap(
+            spacing: Lively.s2,
+            runSpacing: Lively.s2,
+            children: [
+              f.FilledButton(
+                onPressed: () => onAction?.call(
+                  const OpenUIActionEvent(
+                    type: 'open_settings',
+                    componentId: 'error_card',
+                    params: {},
+                  ),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(f.FluentIcons.settings, size: 12),
+                    SizedBox(width: 6),
+                    Text('Open Settings'),
+                  ],
+                ),
+              ),
+              f.Button(
+                onPressed: () => onAction?.call(
+                  const OpenUIActionEvent(
+                    type: 'switch_to_demo',
+                    componentId: 'error_card',
+                    params: {},
+                  ),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(f.FluentIcons.play, size: 12),
+                    SizedBox(width: 6),
+                    Text('Switch to Offline Demo'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

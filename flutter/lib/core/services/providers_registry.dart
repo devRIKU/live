@@ -70,6 +70,22 @@ ModelOption _m(String id, String label, int contextLimit, int maxOutput,
 /// Canonical ordered list (first = highest priority). Failover walks top-down.
 final List<LlmProvider> providers = [
   LlmProvider(
+    id: 'demo',
+    name: 'Lively Demo (Offline)',
+    baseUrl: 'offline://lively',
+    model: 'lively-smart-assistant',
+    models: [
+      _m('lively-smart-assistant', 'Lively Assistant (Interactive GenUI)', 128000, 16384, vision: true, isLive: true),
+      _m('lively-creative-designer', 'Lively Creative Designer', 64000, 8192, vision: true, isLive: true),
+    ],
+    supportsStreaming: true,
+    supportsTools: true,
+    supportsUsage: true,
+    supportsStructuredOutput: true,
+    contextLimit: 128000,
+    envKey: '',
+  ),
+  LlmProvider(
     id: 'openrouter',
     name: 'OpenRouter',
     baseUrl: 'https://openrouter.ai/api/v1',

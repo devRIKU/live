@@ -464,6 +464,15 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
 
   /// A generated component asked for something structured.
   void _handleAction(OpenUIActionEvent event) {
+    if (event.type == 'open_settings') {
+      _openSettings();
+      return;
+    }
+    if (event.type == 'switch_to_demo') {
+      _selectModel('demo', 'lively-smart-assistant');
+      _showToast('Switched to Lively Offline Demo');
+      return;
+    }
     if (event.type == 'open_url') {
       final url = event.params['url']?.toString() ?? '';
       if (isSafeUrl(url)) {
@@ -1105,7 +1114,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
     ];
 
     return isEmpty
-        ? _EmptyState(brightness: b, onSuggestion: (s) => _setInput(s))
+        ? _EmptyState(brightness: b, onSuggestion: (s) => _sendText(s))
         : Scrollbar(
             controller: _scroll,
             child: SingleChildScrollView(
@@ -1259,24 +1268,54 @@ class _EmptyState extends StatelessWidget {
             alignment: WrapAlignment.center,
             children: [
               for (final s in _suggestions)
-                GestureDetector(
-                  onTap: () => onSuggestion(s),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: Lively.s3, vertical: Lively.s2),
-                    decoration: BoxDecoration(
-                      color: Lively.fill(b, 1),
-                      borderRadius: BorderRadius.circular(Lively.rLg),
-                      border:
-                          Border.all(color: Lively.separator(b), width: Lively.bHairline),
-                    ),
-                    child: Text(
-                      s,
-                      style: TextStyle(color: Lively.textSecondary(b), fontSize: Lively.tFootnote),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () => onSuggestion(s),
+                    child: Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: Lively.s3, vertical: Lively.s2),
+                      decoration: BoxDecoration(
+                        color: Lively.fill(b, 1),
+                        borderRadius: BorderRadius.circular(Lively.rLg),
+                        border:
+                            Border.all(color: Lively.separator(b), width: Lively.bHairline),
+                      ),
+                      child: Text(
+                        s,
+                        style: TextStyle(color: Lively.textSecondary(b), fontSize: Lively.tFootnote),
+                      ),
                     ),
                   ),
                 ),
             ],
+          ),
+          const SizedBox(height: Lively.s5),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: Lively.s3, vertical: Lively.s2),
+            decoration: BoxDecoration(
+              color: Lively.fill(b, 1),
+              borderRadius: BorderRadius.circular(Lively.rMd),
+              border: Border.all(color: Lively.separator(b), width: Lively.bHairline),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  f.FluentIcons.info,
+                  size: 13,
+                  color: Lively.appleGreen,
+                ),
+                const SizedBox(width: Lively.s2),
+                Text(
+                  'Offline Demo active. Configure API keys in Settings (⚙) to use live cloud LLMs.',
+                  style: TextStyle(
+                    color: Lively.textSecondary(b),
+                    fontSize: Lively.tMicro,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
