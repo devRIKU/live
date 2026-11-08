@@ -20,6 +20,7 @@ openall/dist/
 target/
 build/
 pub-cache/
+release/
 
 # Flutter / Dart
 flutter/.dart_tool/
